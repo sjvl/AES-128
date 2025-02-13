@@ -67,20 +67,16 @@
             padding-top: 10px;
             margin:  1rem;
             width: 168px;
-            height: 220px;
+            height: 223px;
             background-color: #f0f0f0;
             border-radius: 8px;
-            font-size: xx-small;
-            white-space: pre;
-            line-height: 0.286;
-            letter-spacing: -1px;
         }
 
         .text-input {
             text-align: left;
             padding: 1.5rem 1rem;
             margin: 1rem 0rem 0rem 1rem;
-            width: 175px;
+            width: 100%;
             background-color: #f0f0f0;
             border-radius: 8px;
             border: none;
@@ -113,7 +109,7 @@
             <div class="tile" >AES</div>
         </div>
         <div class="col">
-            <div>
+            <div style="display: flex; width: 100%;">
                 <input type="text" class="text-input" id="text" placeholder="Type text..." value="John Doe">
                 <button class="encrypt-button" id="encrypt-btn">Encrypt</button>
             </div>
@@ -133,7 +129,7 @@
     </pre>
 
     <script id="main-code">
-        const speed = 100;
+        const speed = 200;
         const inputElement = document.getElementById('text');
         const cryptoElement = document.getElementById('crypto');
         const keyElement = document.getElementById('key');
@@ -173,7 +169,6 @@
                 // Calculer et stocker le centre basé sur les premières valeurs
                 let centerX = (state[0] / 255) * 148 ;
                 let centerY = (state[1] / 255) * 210 ;
-                console.log(centerX, centerY)
                 svg.dataset.centerX = centerX;
                 svg.dataset.centerY = centerY;
                 
@@ -283,7 +278,7 @@
 
         function generateRandomKey() {
             // return crypto.getRandomValues(new Uint8Array(16));
-            return [8,3,0,7,2,0,7,6,0,0,0,0,0,0,0,0]
+            return "SHLandSTid@Vegas"
         }
 
         function rotWord(word) {
@@ -309,8 +304,11 @@
             let display = `${toHexString(padded)} `;
             inputElement.textContent = `${message}`
             aesElement.textContent = 'Hexadecimal conversion'
-            // cryptoElement.textContent = display;
+            cryptoElement.textContent = display;
+            // keyElement.textContent = toHexString(key);
             keyElement.textContent = key;
+
+
             await new Promise(resolve => setTimeout(resolve,  speed));
 
             // Key expansion
@@ -348,6 +346,7 @@
             for (let i = 0; i < 16; i++) {
                 state[i] ^= key[i];
             }
+
             display = `${toHexString(state)} `;
             cryptoElement.textContent = display;
 
@@ -360,11 +359,12 @@
                 for (let i = 0; i < 16; i++) {
                     state[i] = sBox[state[i]];
                 }
+
                 display = `${toHexString(state)} `;
                 cryptoElement.textContent = display;
                 visualizeState(state);
-
                 aesElement.textContent = `Round ${round}: SubBytes`
+
                 await new Promise(resolve => setTimeout(resolve,  speed));
 
                 // ShiftRows
@@ -387,8 +387,8 @@
                 display = `${toHexString(state)} `;
                 cryptoElement.textContent = display;
                 visualizeState(state);
-
                 aesElement.textContent = `Round ${round}: ShiftRows`
+
                 await new Promise(resolve => setTimeout(resolve,  speed));
 
                 // MixColumns (except last round)
@@ -402,11 +402,12 @@
                         temp[col + 3] = galoisMul3[state[col]] ^ state[col + 1] ^ state[col + 2] ^ galoisMul2[state[col + 3]];
                     }
                     state.set(temp);
+
                     display = `${toHexString(state)} `;
                     cryptoElement.textContent = display;
                     visualizeState(state);
-
                     aesElement.textContent = `Round ${round}: MixColumns`
+                    
                     await new Promise(resolve => setTimeout(resolve,  speed));
                 }
 
@@ -414,11 +415,12 @@
                 for (let i = 0; i < 16; i++) {
                     state[i] ^= expandedKey[(round * 16) + i];
                 }
+
                 display = `${toHexString(state)} `;
                 cryptoElement.textContent = display;
                 visualizeState(state);
-
                 aesElement.textContent = `Round ${round}: AddRoundKey`
+
                 await new Promise(resolve => setTimeout(resolve,  speed));
             }
 
