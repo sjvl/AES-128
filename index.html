@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>AES-128 steps & ASCII art</title>
+    <title>AES-128 steps & generative portal</title>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
@@ -50,6 +50,7 @@
             min-width: 50px;
             background-color: #f0f0f0;
             border-radius: 8px;
+            color: rgba(99, 99, 99, 0.7);
         }
 
         .long-tile {
@@ -107,13 +108,13 @@
 <body>
     <div id="content">
         <div class="col">
-            <div class="tile">text</div>
+            <div class="tile">name</div>
             <div class="tile">key</div>
             <div class="tile" >AES</div>
         </div>
         <div class="col">
             <div>
-                <input type="text" class="text-input" id="text" placeholder="Type text..." value="crypt me!">
+                <input type="text" class="text-input" id="text" placeholder="Type text..." value="John Doe">
                 <button class="encrypt-button" id="encrypt-btn">Encrypt</button>
             </div>
             <div class="long-tile">
@@ -132,7 +133,7 @@
     </pre>
 
     <script id="main-code">
-        const speed = 200;
+        const speed = 100;
         const inputElement = document.getElementById('text');
         const cryptoElement = document.getElementById('crypto');
         const keyElement = document.getElementById('key');
@@ -170,8 +171,9 @@
                 svg.style.backgroundColor = "#f0f0f0";
                 
                 // Calculer et stocker le centre basé sur les premières valeurs
-                const centerX = (state[0] / 255) * 148;
-                const centerY = (state[1] / 255) * 210;
+                let centerX = (state[0] / 255) * 148 ;
+                let centerY = (state[1] / 255) * 210 ;
+                console.log(centerX, centerY)
                 svg.dataset.centerX = centerX;
                 svg.dataset.centerY = centerY;
                 
@@ -196,11 +198,14 @@
             values.forEach((v, i) => {
                 if (i >= numberOfArcs) return;
                 
-                // Le rayon de base varie selon v
-                const baseRadius = v/ (svg.dataset.centerY / svg.dataset.centerX) ;
+                // Le rayon de base varie selon v et un nombre pseudo-aléatoire entre 1 et 5
+                function getNumberFromSeed(seed, min, max) {
+                    const random = Math.abs(Math.sin(seed) * 10000);
+                    return Math.floor(random % (max - min + 1)) + min;
+                }
+                const baseRadius = v / getNumberFromSeed(centerX, 1, 5);
                 
-                // On commence à step = 1 pour éviter le cercle de base
-                for (let step = 1; step <= v/16; step++) {
+                for (let step = 1; step <= v/32; step++) {
                     const offset = step * stepSize;
                     
                     const startAngle = i * anglePerArc;
