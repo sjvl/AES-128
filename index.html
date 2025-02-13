@@ -129,110 +129,111 @@
     </pre>
 
     <script id="main-code">
-        const speed = 200;
-        const inputElement = document.getElementById('text');
-        const cryptoElement = document.getElementById('crypto');
-        const keyElement = document.getElementById('key');
-        const aesElement = document.getElementById('AES');
-        const canvasElement = document.getElementById('canvas')
+        const speed = 200;                                                                              
 
-
-        // const visualizeState = (state) => {
-        //     const values = [...state];
-        //     let criptografik = values.map(v => v < 85 ? '░░' : v < 170 ? '▒▒' : '██').join('');
-        //     canvasElement.textContent += `${criptografik}\n`;
-        // };
-
-        // const visualizeState = (state) => {
-        //       const shades = ' ░▒▓█▉▊▋';  // 8 niveaux de "gris"
-        //       const values = [...state];
-        //       let criptografik = values.map(v => shades[Math.floor(v * 7 / 255)].repeat(2)).join('');
-        //       canvasElement.textContent += `${criptografik}\n`;
-        // };
-
-        // const visualizeState = (state) => {
-        //       const shades = ' ░▁▂▃▄▅▆▇█▀▔▏▎▍▌▋';  // 16 niveaux alternatifs
-        //       const values = [...state];
-        //       let criptografik = values.map(v => shades[Math.floor(v * 15 / 255)].repeat(2)).join('');
-        //       canvasElement.textContent += `${criptografik}\n\n`;
-        // };        
-
-        const visualizeState = (state) => {
-            // Si c'est le premier appel, créer le SVG
-            if (!canvasElement.querySelector('svg')) {
-                const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-                svg.setAttribute("viewBox", "0 0 148 210");
-                svg.style.width = "148px";
-                svg.style.height = "210px";
-                svg.style.backgroundColor = "#f0f0f0";
-                
-                // Calculer et stocker le centre basé sur les premières valeurs
-                let centerX = (state[0] / 255) * 148 ;
-                let centerY = (state[1] / 255) * 210 ;
-                svg.dataset.centerX = centerX;
-                svg.dataset.centerY = centerY;
-                
-                canvasElement.appendChild(svg);
-            }
-            
-            const svg = canvasElement.querySelector('svg');
-            const values = [...state];
-            const numberOfArcs = 16;
-            const anglePerArc = 360 / numberOfArcs;
-            
-            // Calculer la somme totale et le pas de décalage
-            const totalSum = values.reduce((sum, v) => sum + v, 0);
-            const stepSize = totalSum / (16 * 32);
-            
-            const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
-            
-            // Récupérer le centre stocké
-            const centerX = parseFloat(svg.dataset.centerX);
-            const centerY = parseFloat(svg.dataset.centerY);
-            
-            values.forEach((v, i) => {
-                if (i >= numberOfArcs) return;
-                
-                // Le rayon de base varie selon v et un nombre pseudo-aléatoire entre 1 et 5
-                function getNumberFromSeed(seed, min, max) {
-                    const random = Math.abs(Math.sin(seed) * 10000);
-                    return Math.floor(random % (max - min + 1)) + min;
-                }
-                const baseRadius = v / getNumberFromSeed(centerX, 1, 5);
-                
-                for (let step = 1; step <= v/32; step++) {
-                    const offset = step * stepSize;
-                    
-                    const startAngle = i * anglePerArc;
-                    const endAngle = startAngle + anglePerArc;
-                    
-                    const startRad = (startAngle - 90) * Math.PI / 180;
-                    const endRad = (endAngle - 90) * Math.PI / 180;
-                    
-                    const currentRadius = baseRadius + offset;
-                    const startX = centerX + Math.cos(startRad) * currentRadius;
-                    const startY = centerY + Math.sin(startRad) * currentRadius;
-                    const endX = centerX + Math.cos(endRad) * currentRadius;
-                    const endY = centerY + Math.sin(endRad) * currentRadius;
-                    
-                    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-                    const d = `M ${startX},${startY} A ${currentRadius},${currentRadius} 0 0,1 ${endX},${endY}`;
-                    
-                    path.setAttribute("d", d);
-                    path.setAttribute("stroke", "black");
-                    path.setAttribute("stroke-width", ".5");
-                    path.setAttribute("fill", "none");
-                    path.setAttribute("opacity", ".8");
-                    
-                    group.appendChild(path);
-                }
-            });
-            
-            svg.appendChild(group);
-        };
-
-
-
+        const inputElement = document.getElementById('text');                                           //HIDE
+        const cryptoElement = document.getElementById('crypto');                                        //HIDE
+        const keyElement = document.getElementById('key');                                              //HIDE
+        const aesElement = document.getElementById('AES');                                              //HIDE
+        const canvasElement = document.getElementById('canvas')                                         //HIDE
+                                                                                                        //HIDE
+                                                                                                        //HIDE
+        // const visualizeState = (state) => {                                                          //HIDE
+        //     const values = [...state];                                                               //HIDE
+        //     let criptografik = values.map(v => v < 85 ? '░░' : v < 170 ? '▒▒' : '██').join('');      //HIDE
+        //     canvasElement.textContent += `${criptografik}\n`;                                        //HIDE
+        // };                                                                                           //HIDE
+                                                                                                        //HIDE
+        // const visualizeState = (state) => {                                                          //HIDE
+        //       const shades = ' ░▒▓█▉▊▋';  // 8 niveaux de "gris"                                     //HIDE
+        //       const values = [...state];                                                             //HIDE
+        //       let criptografik = values.map(v => shades[Math.floor(v * 7 / 255)].repeat(2)).join('');//HIDE
+        //       canvasElement.textContent += `${criptografik}\n`;                                      //HIDE
+        // };                                                                                           //HIDE
+                                                                                                        //HIDE
+        // const visualizeState = (state) => {                                                          //HIDE
+        //       const shades = ' ░▁▂▃▄▅▆▇█▀▔▏▎▍▌▋';  // 16 niveaux alternatifs                         //HIDE
+        //       const values = [...state];                                                             //HIDE
+        //       let criptografik = values.map(v => shades[Math.floor(v * 15 / 255)].repeat(2)).join('');//HIDE
+        //       canvasElement.textContent += `${criptografik}\n\n`;                                    //HIDE
+        // };                                                                                           //HIDE
+                                                                                                        //HIDE
+        const visualizeState = (state) => {                                                             //HIDE
+            // Si c'est le premier appel, créer le SVG                                                  //HIDE
+            if (!canvasElement.querySelector('svg')) {                                                  //HIDE
+                const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");              //HIDE
+                svg.setAttribute("viewBox", "0 0 148 210");                                             //HIDE
+                svg.style.width = "148px";                                                              //HIDE
+                svg.style.height = "210px";                                                             //HIDE
+                svg.style.backgroundColor = "#f0f0f0";                                                  //HIDE
+                                                                                                        //HIDE
+                // Calculer et stocker le centre basé sur les premières valeurs                         //HIDE
+                let centerX = (state[0] / 255) * 148 ;                                                  //HIDE
+                let centerY = (state[1] / 255) * 210 ;                                                  //HIDE
+                svg.dataset.centerX = centerX;                                                          //HIDE
+                svg.dataset.centerY = centerY;                                                          //HIDE
+                                                                                                        //HIDE
+                canvasElement.appendChild(svg);                                                         //HIDE
+            }                                                                                           //HIDE
+                                                                                                        //HIDE
+            const svg = canvasElement.querySelector('svg');                                             //HIDE
+            const values = [...state];                                                                  //HIDE
+            const numberOfArcs = 16;                                                                    //HIDE
+            const anglePerArc = 360 / numberOfArcs;                                                     //HIDE
+                                                                                                        //HIDE
+            // Calculer la somme totale et le pas de décalage                                           //HIDE
+            const totalSum = values.reduce((sum, v) => sum + v, 0);                                     //HIDE
+            const stepSize = totalSum / (16 * 32);                                                      //HIDE
+                                                                                                        //HIDE
+            const group = document.createElementNS("http://www.w3.org/2000/svg", "g");                  //HIDE
+                                                                                                        //HIDE
+            // Récupérer le centre stocké                                                               //HIDE
+            const centerX = parseFloat(svg.dataset.centerX);                                            //HIDE
+            const centerY = parseFloat(svg.dataset.centerY);                                            //HIDE
+                                                                                                        //HIDE
+            values.forEach((v, i) => {                                                                  //HIDE
+                if (i >= numberOfArcs) return;                                                          //HIDE
+                                                                                                        //HIDE
+                // Le rayon de base varie selon v et un nombre pseudo-aléatoire entre 1 et 5            //HIDE
+                function getNumberFromSeed(seed, min, max) {                                            //HIDE
+                    const random = Math.abs(Math.sin(seed) * 10000);                                    //HIDE
+                    return Math.floor(random % (max - min + 1)) + min;                                  //HIDE
+                }                                                                                       //HIDE
+                const baseRadius = v / getNumberFromSeed(centerX, 1, 5);                                //HIDE
+                                                                                                        //HIDE
+                for (let step = 1; step <= v/32; step++) {                                              //HIDE
+                    const offset = step * stepSize;                                                     //HIDE
+                                                                                                        //HIDE
+                    const startAngle = i * anglePerArc;                                                 //HIDE
+                    const endAngle = startAngle + anglePerArc;                                          //HIDE
+                                                                                                        //HIDE
+                    const startRad = (startAngle - 90) * Math.PI / 180;                                 //HIDE
+                    const endRad = (endAngle - 90) * Math.PI / 180;                                     //HIDE
+                                                                                                        //HIDE
+                    const currentRadius = baseRadius + offset;                                          //HIDE
+                    const startX = centerX + Math.cos(startRad) * currentRadius;                        //HIDE
+                    const startY = centerY + Math.sin(startRad) * currentRadius;                        //HIDE
+                    const endX = centerX + Math.cos(endRad) * currentRadius;                            //HIDE
+                    const endY = centerY + Math.sin(endRad) * currentRadius;                            //HIDE
+                                                                                                        //HIDE
+                    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");        //HIDE
+                    const d = `M ${startX},${startY} A ${currentRadius},${currentRadius} 0 0,1 ${endX},${endY}`;//HIDE
+                                                                                                        //HIDE
+                    path.setAttribute("d", d);                                                          //HIDE
+                    path.setAttribute("stroke", "black");                                               //HIDE
+                    path.setAttribute("stroke-width", ".5");                                            //HIDE
+                    path.setAttribute("fill", "none");                                                  //HIDE
+                    path.setAttribute("opacity", ".8");                                                 //HIDE
+                                                                                                        //HIDE
+                    group.appendChild(path);                                                            //HIDE
+                }                                                                                       //HIDE
+            });                                                                                         //HIDE
+                                                                                                        //HIDE
+            svg.appendChild(group);                                                                     //HIDE
+        };                                                                                              //HIDE
+                                                                                                        //HIDE
+                                                                                                        //HIDE
+                                                                                                        //HIDE
         // Complète S-box table
         const sBox = new Uint8Array([
             0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5, 0x30, 0x01, 0x67, 0x2b, 0xfe, 0xd7, 0xab, 0x76,
@@ -278,7 +279,7 @@
 
         function generateRandomKey() {
             // return crypto.getRandomValues(new Uint8Array(16));
-            return "SHLandSTid@Vegas"
+            return "SHLandSTid@Vegas"                                                               //HIDE
         }
 
         function rotWord(word) {
@@ -296,19 +297,18 @@
             
             const key = generateRandomKey();
             
-            // Convert message to bytes and pad
-            const msgBytes = new TextEncoder().encode(message);
-            const padded = new Uint8Array(Math.ceil(msgBytes.length / 16) * 16);
-            padded.set(msgBytes);
-            
-            let display = `${toHexString(padded)} `;
-            inputElement.textContent = `${message}`
-            aesElement.textContent = 'Hexadecimal conversion'
-            cryptoElement.textContent = display;
-            // keyElement.textContent = toHexString(key);
-            keyElement.textContent = key;
-
-
+            // Convert name to bytes and pad
+            const nameBytes = new TextEncoder().encode(message);
+            const padded = new Uint8Array(Math.ceil(nameBytes.length / 16) * 16);
+            padded.set(nameBytes);
+                                                                                                    //HIDE
+            let display = `${toHexString(padded)} `;                                                //HIDE
+            inputElement.textContent = `${message}`;                                                //HIDE
+            aesElement.textContent = 'Hexadecimal conversion';                                      //HIDE
+            cryptoElement.textContent = display;                                                    //HIDE
+            // keyElement.textContent = toHexString(key);                                           //HIDE
+            keyElement.textContent = key;                                                           //HIDE
+                                                                                                    //HIDE
             await new Promise(resolve => setTimeout(resolve,  speed));
 
             // Key expansion
@@ -346,10 +346,10 @@
             for (let i = 0; i < 16; i++) {
                 state[i] ^= key[i];
             }
-
-            display = `${toHexString(state)} `;
-            cryptoElement.textContent = display;
-
+                                                                                                        //HIDE
+            display = `${toHexString(state)} `;                                                         //HIDE
+            cryptoElement.textContent = display;                                                        //HIDE
+                                                                                                        //HIDE
             await new Promise(resolve => setTimeout(resolve,  speed));
 
             // Main rounds
@@ -359,12 +359,12 @@
                 for (let i = 0; i < 16; i++) {
                     state[i] = sBox[state[i]];
                 }
-
-                display = `${toHexString(state)} `;
-                cryptoElement.textContent = display;
-                visualizeState(state);
-                aesElement.textContent = `Round ${round}: SubBytes`
-
+                                                                                                        //HIDE
+                display = `${toHexString(state)} `;                                                     //HIDE
+                cryptoElement.textContent = display;                                                    //HIDE
+                visualizeState(state);                                                                  //HIDE
+                aesElement.textContent = `Round ${round}: SubBytes`                                     //HIDE
+                                                                                                        //HIDE
                 await new Promise(resolve => setTimeout(resolve,  speed));
 
                 // ShiftRows
@@ -384,11 +384,11 @@
                 state[11] = temp[7];
                 state[15] = temp[11];
                 
-                display = `${toHexString(state)} `;
-                cryptoElement.textContent = display;
-                visualizeState(state);
-                aesElement.textContent = `Round ${round}: ShiftRows`
-
+                display = `${toHexString(state)} `;                                                     //HIDE
+                cryptoElement.textContent = display;                                                    //HIDE
+                visualizeState(state);                                                                  //HIDE
+                aesElement.textContent = `Round ${round}: ShiftRows`;                                   //HIDE
+                                                                                                        //HIDE
                 await new Promise(resolve => setTimeout(resolve,  speed));
 
                 // MixColumns (except last round)
@@ -403,11 +403,11 @@
                     }
                     state.set(temp);
 
-                    display = `${toHexString(state)} `;
-                    cryptoElement.textContent = display;
-                    visualizeState(state);
-                    aesElement.textContent = `Round ${round}: MixColumns`
-                    
+                    display = `${toHexString(state)} `;                                                 //HIDE
+                    cryptoElement.textContent = display;                                                //HIDE
+                    visualizeState(state);                                                              //HIDE
+                    aesElement.textContent = `Round ${round}: MixColumns`;                              //HIDE
+                                                                                                        //HIDE
                     await new Promise(resolve => setTimeout(resolve,  speed));
                 }
 
@@ -416,38 +416,42 @@
                     state[i] ^= expandedKey[(round * 16) + i];
                 }
 
-                display = `${toHexString(state)} `;
-                cryptoElement.textContent = display;
-                visualizeState(state);
-                aesElement.textContent = `Round ${round}: AddRoundKey`
-
+                display = `${toHexString(state)} `;                                                     //HIDE
+                cryptoElement.textContent = display;                                                    //HIDE
+                visualizeState(state);                                                                  //HIDE
+                aesElement.textContent = `Round ${round}: AddRoundKey`;                                 //HIDE
+                                                                                                        //HIDE
                 await new Promise(resolve => setTimeout(resolve,  speed));
             }
 
-            aesElement.textContent = ``
+            aesElement.textContent = ``;                                                                //HIDE
             await new Promise(resolve => setTimeout(resolve,  speed));
         }
 
-        // Initialisation
-        document.addEventListener('DOMContentLoaded', () => {
-            // Récupérer et afficher le code en arrière-plan
-            const mainCode = document.getElementById('main-code').textContent;
-            const codeElement = document.querySelector('#background-code code');
-            codeElement.textContent = mainCode;
-            hljs.highlightAll();
-
-            document.getElementById('text').addEventListener('click', (e) => {
-                e.srcElement.value = '';
-            });
-
-            document.getElementById('encrypt-btn').addEventListener('click', () => {
-                const messageInput = document.getElementById('text');
-                canvasElement.textContent = '';
-                keyElement.textContent = '';
-                cryptoElement;textContent = '';
-                aesEncrypt(messageInput.value);
-            });
-        });
+        // Initialisation                                                                               //HIDE
+        document.addEventListener('DOMContentLoaded', () => {                                           //HIDE
+            // Récupérer et afficher le code en arrière-plan                                            //HIDE
+            const mainCode = document.getElementById('main-code').textContent;                          //HIDE
+            const filteredCode = mainCode                                                               //HIDE
+                .split('\n')                                                                            //HIDE
+                .filter(line => !line.includes('//HIDE'))                                               //HIDE
+                .join('\n');                                                                            //HIDE
+            const codeElement = document.querySelector('#background-code code');                        //HIDE
+            codeElement.textContent = filteredCode;                                                     //HIDE
+            hljs.highlightAll();                                                                        //HIDE
+                                                                                                        //HIDE
+            document.getElementById('text').addEventListener('click', (e) => {                          //HIDE
+                e.srcElement.value = '';                                                                //HIDE
+            });                                                                                         //HIDE
+                                                                                                        //HIDE
+            document.getElementById('encrypt-btn').addEventListener('click', () => {                    //HIDE
+                const messageInput = document.getElementById('text');                                   //HIDE
+                canvasElement.textContent = '';                                                         //HIDE
+                keyElement.textContent = '';                                                            //HIDE
+                cryptoElement;textContent = '';                                                         //HIDE
+                aesEncrypt(messageInput.value);                                                         //HIDE
+            });                                                                                         //HIDE
+        });                                                                                             //HIDE
     </script>
 </body>
 </html>
