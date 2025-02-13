@@ -63,12 +63,13 @@
 
         .canvas {
             text-align: center;
-            padding: 1rem;
+            padding-top: 10px;
             margin:  1rem;
-            width: 140px;
+            width: 168px;
+            height: 220px;
             background-color: #f0f0f0;
             border-radius: 8px;
-            font-size:xx-small;
+            font-size: xx-small;
             white-space: pre;
             line-height: 0.286;
             letter-spacing: -1px;
@@ -152,12 +153,85 @@
         //       canvasElement.textContent += `${criptografik}\n`;
         // };
 
+        // const visualizeState = (state) => {
+        //       const shades = ' ░▁▂▃▄▅▆▇█▀▔▏▎▍▌▋';  // 16 niveaux alternatifs
+        //       const values = [...state];
+        //       let criptografik = values.map(v => shades[Math.floor(v * 15 / 255)].repeat(2)).join('');
+        //       canvasElement.textContent += `${criptografik}\n\n`;
+        // };        
+
         const visualizeState = (state) => {
-              const shades = ' ░▁▂▃▄▅▆▇█▀▔▏▎▍▌▋';  // 16 niveaux alternatifs
-              const values = [...state];
-              let criptografik = values.map(v => shades[Math.floor(v * 15 / 255)].repeat(2)).join('');
-              canvasElement.textContent += `${criptografik}\n\n`;
+            // Si c'est le premier appel, créer le SVG
+            if (!canvasElement.querySelector('svg')) {
+                const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+                svg.setAttribute("viewBox", "0 0 148 210");
+                svg.style.width = "148px";
+                svg.style.height = "210px";
+                svg.style.backgroundColor = "#f0f0f0";
+                
+                // Calculer et stocker le centre basé sur les premières valeurs
+                const centerX = (state[0] / 255) * 148;
+                const centerY = (state[1] / 255) * 210;
+                svg.dataset.centerX = centerX;
+                svg.dataset.centerY = centerY;
+                
+                canvasElement.appendChild(svg);
+            }
+            
+            const svg = canvasElement.querySelector('svg');
+            const values = [...state];
+            const numberOfArcs = 16;
+            const anglePerArc = 360 / numberOfArcs;
+            
+            // Calculer la somme totale et le pas de décalage
+            const totalSum = values.reduce((sum, v) => sum + v, 0);
+            const stepSize = totalSum / (16 * 32);
+            
+            const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+            
+            // Récupérer le centre stocké
+            const centerX = parseFloat(svg.dataset.centerX);
+            const centerY = parseFloat(svg.dataset.centerY);
+            
+            values.forEach((v, i) => {
+                if (i >= numberOfArcs) return;
+                
+                // Le rayon de base varie selon v
+                const baseRadius = v/ (svg.dataset.centerY / svg.dataset.centerX) ;
+                
+                // On commence à step = 1 pour éviter le cercle de base
+                for (let step = 1; step <= v/16; step++) {
+                    const offset = step * stepSize;
+                    
+                    const startAngle = i * anglePerArc;
+                    const endAngle = startAngle + anglePerArc;
+                    
+                    const startRad = (startAngle - 90) * Math.PI / 180;
+                    const endRad = (endAngle - 90) * Math.PI / 180;
+                    
+                    const currentRadius = baseRadius + offset;
+                    const startX = centerX + Math.cos(startRad) * currentRadius;
+                    const startY = centerY + Math.sin(startRad) * currentRadius;
+                    const endX = centerX + Math.cos(endRad) * currentRadius;
+                    const endY = centerY + Math.sin(endRad) * currentRadius;
+                    
+                    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                    const d = `M ${startX},${startY} A ${currentRadius},${currentRadius} 0 0,1 ${endX},${endY}`;
+                    
+                    path.setAttribute("d", d);
+                    path.setAttribute("stroke", "black");
+                    path.setAttribute("stroke-width", ".5");
+                    path.setAttribute("fill", "none");
+                    path.setAttribute("opacity", ".8");
+                    
+                    group.appendChild(path);
+                }
+            });
+            
+            svg.appendChild(group);
         };
+
+
 
         // Complète S-box table
         const sBox = new Uint8Array([
