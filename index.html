@@ -138,102 +138,8 @@
         const canvasElement = document.getElementById('canvas')                                         //HIDE
                                                                                                         //HIDE
                                                                                                         //HIDE
-        // const visualizeState = (state) => {                                                          //HIDE
-        //     const values = [...state];                                                               //HIDE
-        //     let criptografik = values.map(v => v < 85 ? '░░' : v < 170 ? '▒▒' : '██').join('');      //HIDE
-        //     canvasElement.textContent += `${criptografik}\n`;                                        //HIDE
-        // };                                                                                           //HIDE
                                                                                                         //HIDE
-        // const visualizeState = (state) => {                                                          //HIDE
-        //       const shades = ' ░▒▓█▉▊▋';  // 8 niveaux de "gris"                                     //HIDE
-        //       const values = [...state];                                                             //HIDE
-        //       let criptografik = values.map(v => shades[Math.floor(v * 7 / 255)].repeat(2)).join('');//HIDE
-        //       canvasElement.textContent += `${criptografik}\n`;                                      //HIDE
-        // };                                                                                           //HIDE
-                                                                                                        //HIDE
-        // const visualizeState = (state) => {                                                          //HIDE
-        //       const shades = ' ░▁▂▃▄▅▆▇█▀▔▏▎▍▌▋';  // 16 niveaux alternatifs                         //HIDE
-        //       const values = [...state];                                                             //HIDE
-        //       let criptografik = values.map(v => shades[Math.floor(v * 15 / 255)].repeat(2)).join('');//HIDE
-        //       canvasElement.textContent += `${criptografik}\n\n`;                                    //HIDE
-        // };                                                                                           //HIDE
-                                                                                                        //HIDE
-        const visualizeState = (state) => {                                                             //HIDE
-            // Si c'est le premier appel, créer le SVG                                                  //HIDE
-            if (!canvasElement.querySelector('svg')) {                                                  //HIDE
-                const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");              //HIDE
-                svg.setAttribute("viewBox", "0 0 148 210");                                             //HIDE
-                svg.style.width = "148px";                                                              //HIDE
-                svg.style.height = "210px";                                                             //HIDE
-                svg.style.backgroundColor = "#f0f0f0";                                                  //HIDE
-                                                                                                        //HIDE
-                // Calculer et stocker le centre basé sur les premières valeurs                         //HIDE
-                let centerX = (state[0] / 255) * 148 ;                                                  //HIDE
-                let centerY = (state[1] / 255) * 210 ;                                                  //HIDE
-                svg.dataset.centerX = centerX;                                                          //HIDE
-                svg.dataset.centerY = centerY;                                                          //HIDE
-                                                                                                        //HIDE
-                canvasElement.appendChild(svg);                                                         //HIDE
-            }                                                                                           //HIDE
-                                                                                                        //HIDE
-            const svg = canvasElement.querySelector('svg');                                             //HIDE
-            const values = [...state];                                                                  //HIDE
-            const numberOfArcs = 16;                                                                    //HIDE
-            const anglePerArc = 360 / numberOfArcs;                                                     //HIDE
-                                                                                                        //HIDE
-            // Calculer la somme totale et le pas de décalage                                           //HIDE
-            const totalSum = values.reduce((sum, v) => sum + v, 0);                                     //HIDE
-            const stepSize = totalSum / (16 * 32);                                                      //HIDE
-                                                                                                        //HIDE
-            const group = document.createElementNS("http://www.w3.org/2000/svg", "g");                  //HIDE
-                                                                                                        //HIDE
-            // Récupérer le centre stocké                                                               //HIDE
-            const centerX = parseFloat(svg.dataset.centerX);                                            //HIDE
-            const centerY = parseFloat(svg.dataset.centerY);                                            //HIDE
-                                                                                                        //HIDE
-            values.forEach((v, i) => {                                                                  //HIDE
-                if (i >= numberOfArcs) return;                                                          //HIDE
-                                                                                                        //HIDE
-                // Le rayon de base varie selon v et un nombre pseudo-aléatoire entre 1 et 5            //HIDE
-                function getNumberFromSeed(seed, min, max) {                                            //HIDE
-                    const random = Math.abs(Math.sin(seed) * 10000);                                    //HIDE
-                    return Math.floor(random % (max - min + 1)) + min;                                  //HIDE
-                }                                                                                       //HIDE
-                const baseRadius = v / getNumberFromSeed(centerX, 1, 5);                                //HIDE
-                                                                                                        //HIDE
-                for (let step = 1; step <= v/32; step++) {                                              //HIDE
-                    const offset = step * stepSize;                                                     //HIDE
-                                                                                                        //HIDE
-                    const startAngle = i * anglePerArc;                                                 //HIDE
-                    const endAngle = startAngle + anglePerArc;                                          //HIDE
-                                                                                                        //HIDE
-                    const startRad = (startAngle - 90) * Math.PI / 180;                                 //HIDE
-                    const endRad = (endAngle - 90) * Math.PI / 180;                                     //HIDE
-                                                                                                        //HIDE
-                    const currentRadius = baseRadius + offset;                                          //HIDE
-                    const startX = centerX + Math.cos(startRad) * currentRadius;                        //HIDE
-                    const startY = centerY + Math.sin(startRad) * currentRadius;                        //HIDE
-                    const endX = centerX + Math.cos(endRad) * currentRadius;                            //HIDE
-                    const endY = centerY + Math.sin(endRad) * currentRadius;                            //HIDE
-                                                                                                        //HIDE
-                    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");        //HIDE
-                    const d = `M ${startX},${startY} A ${currentRadius},${currentRadius} 0 0,1 ${endX},${endY}`;//HIDE
-                                                                                                        //HIDE
-                    path.setAttribute("d", d);                                                          //HIDE
-                    path.setAttribute("stroke", "black");                                               //HIDE
-                    path.setAttribute("stroke-width", ".5");                                            //HIDE
-                    path.setAttribute("fill", "none");                                                  //HIDE
-                    path.setAttribute("opacity", ".8");                                                 //HIDE
-                                                                                                        //HIDE
-                    group.appendChild(path);                                                            //HIDE
-                }                                                                                       //HIDE
-            });                                                                                         //HIDE
-                                                                                                        //HIDE
-            svg.appendChild(group);                                                                     //HIDE
-        };                                                                                              //HIDE
-                                                                                                        //HIDE
-                                                                                                        //HIDE
-                                                                                                        //HIDE
+                                                                                                        //HIDE                                                                                                        
         // Complète S-box table
         const sBox = new Uint8Array([
             0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5, 0x30, 0x01, 0x67, 0x2b, 0xfe, 0xd7, 0xab, 0x76,
@@ -452,6 +358,169 @@
                 aesEncrypt(messageInput.value);                                                         //HIDE
             });                                                                                         //HIDE
         });                                                                                             //HIDE
+
+        const visualizeState = (state) => {
+            // Initialisation du SVG
+            if (!canvasElement.querySelector('svg')) {
+                const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+                svg.setAttribute("viewBox", "0 0 148 210");
+                svg.style.width = "148px";
+                svg.style.height = "210px";
+                svg.style.backgroundColor = "#f0f0f0";
+                
+                canvasElement.appendChild(svg);
+            }
+
+            const svg = canvasElement.querySelector('svg');
+            while (svg.firstChild) {
+                svg.removeChild(svg.firstChild);
+            }
+            
+            const margin = 20;
+            const width = 148 - (2 * margin);
+            const height = 210 - (2 * margin);
+            
+            // Créer les points de base
+            const points = [];
+            for (let i = 0; i < state.length; i += 2) {
+                points.push({
+                    x: margin + (state[i] / 255) * width,
+                    y: margin + (state[i + 1] / 255) * height
+                });
+            }
+            
+            const tension = .4;
+            
+            // Fonction pour calculer les points de contrôle
+            function getControlPoints(p0, p1, p2) {
+                const d01 = Math.sqrt(Math.pow(p1.x - p0.x, 2) + Math.pow(p1.y - p0.y, 2));
+                const d12 = Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
+                
+                const fa = tension * d01 / (d01 + d12);
+                const fb = tension * d12 / (d01 + d12);
+                
+                const cp1x = p1.x - fa * (p2.x - p0.x);
+                const cp1y = p1.y - fa * (p2.y - p0.y);
+                const cp2x = p1.x + fb * (p2.x - p0.x);
+                const cp2y = p1.y + fb * (p2.y - p0.y);
+                
+                return [{x: cp1x, y: cp1y}, {x: cp2x, y: cp2y}];
+            }
+            
+            // Fonction pour calculer un point sur une courbe de Bézier cubique
+            function getBezierPoint(t, p0, cp1, cp2, p1) {
+                const t2 = t * t;
+                const t3 = t2 * t;
+                const mt = 1 - t;
+                const mt2 = mt * mt;
+                const mt3 = mt2 * mt;
+                
+                return {
+                    x: mt3 * p0.x + 3 * mt2 * t * cp1.x + 3 * mt * t2 * cp2.x + t3 * p1.x,
+                    y: mt3 * p0.y + 3 * mt2 * t * cp1.y + 3 * mt * t2 * cp2.y + t3 * p1.y
+                };
+            }
+
+            // Fonction pour estimer la longueur d'un segment de Bézier
+            function estimateSegmentLength(p1, cp2, nextCp1, p2, steps = 10) {
+                let length = 0;
+                let prevPoint = p1;
+                
+                for (let i = 1; i <= steps; i++) {
+                    const t = i / steps;
+                    const point = getBezierPoint(t, p1, cp2, nextCp1, p2);
+                    length += Math.sqrt(
+                        Math.pow(point.x - prevPoint.x, 2) + 
+                        Math.pow(point.y - prevPoint.y, 2)
+                    );
+                    prevPoint = point;
+                }
+                
+                return length;
+            }
+            
+            // Générer des points le long de la courbe
+            let curvePoints = [];
+            const basePointsPerUnit = 0.5; // Paramètre de densité des points
+            
+            for (let i = 0; i < points.length - 1; i++) {
+                const p0 = points[Math.max(0, i - 1)];
+                const p1 = points[i];
+                const p2 = points[i + 1];
+                const p3 = points[Math.min(points.length - 1, i + 2)];
+                
+                const [cp1, cp2] = getControlPoints(p0, p1, p2);
+                const [nextCp1, nextCp2] = getControlPoints(p1, p2, p3);
+                
+                // Calculer la longueur du segment
+                const segmentLength = estimateSegmentLength(p1, cp2, nextCp1, p2);
+                
+                // Ajuster le nombre de points en fonction de la longueur
+                const numPoints = Math.max(5, Math.round(segmentLength * basePointsPerUnit));
+                
+                for (let j = 0; j < numPoints; j++) {
+                    const t = j / numPoints;
+                    const point = getBezierPoint(t, p1, cp2, nextCp1, p2);
+                    curvePoints.push(point);
+                }
+            }
+            
+            // Dessiner les cercles et les caches dans l'ordre
+            curvePoints.forEach((point, index) => {
+                const radius = point.y/point.x*5;
+                
+                // Si c'est le premier point, dessiner d'abord le carré avec trou
+                if (index === 0) {
+                    const squarePath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                    const size = radius+2;
+                    squarePath.setAttribute('d', `
+                        M ${point.x - size},${point.y - size}
+                        h ${size * 2}
+                        v ${size * 2}
+                        h ${-size * 2}
+                        z
+                        M ${point.x},${point.y}
+                        m ${-radius},0
+                        a ${radius},${radius} 0 1,0 ${radius * 2},0
+                        a ${radius},${radius} 0 1,0 ${-radius * 2},0
+                    `);
+                    squarePath.setAttribute('fill', 'black');
+                    squarePath.setAttribute('fill-rule', 'evenodd');
+                    svg.appendChild(squarePath);
+                }
+                
+                // Dessiner le cercle
+                const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                circle.setAttribute('cx', point.x);
+                circle.setAttribute('cy', point.y);
+                circle.setAttribute('r', radius);
+                circle.setAttribute('fill', 'white');
+                circle.setAttribute('stroke', 'black');
+                circle.setAttribute('stroke-width', '0.5');
+                svg.appendChild(circle);
+                
+                // Si c'est le dernier point, dessiner le carré avec trou après le cercle
+                if (index === curvePoints.length - 1) {
+                    const squarePath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                    const size = radius+2;
+                    squarePath.setAttribute('d', `
+                        M ${point.x - size},${point.y - size}
+                        h ${size * 2}
+                        v ${size * 2}
+                        h ${-size * 2}
+                        z
+                        M ${point.x},${point.y}
+                        m ${-radius},0
+                        a ${radius},${radius} 0 1,0 ${radius * 2},0
+                        a ${radius},${radius} 0 1,0 ${-radius * 2},0
+                    `);
+                    squarePath.setAttribute('fill', 'black');
+                    squarePath.setAttribute('fill-rule', 'evenodd');
+                    svg.appendChild(squarePath);
+                }
+            });
+        }
+
     </script>
 </body>
 </html>
