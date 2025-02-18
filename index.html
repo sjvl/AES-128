@@ -129,7 +129,8 @@
     </pre>
 
     <script id="main-code">
-        const speed = 200;                                                                              
+        const speed = 200;
+        const key = generateRandomKey();                                                                              
 
         const inputElement = document.getElementById('text');                                           //HIDE
         const cryptoElement = document.getElementById('crypto');                                        //HIDE
@@ -140,7 +141,7 @@
                                                                                                         //HIDE
                                                                                                         //HIDE
                                                                                                         //HIDE                                                                                                        
-        // Complète S-box table
+        // S-box table
         const sBox = new Uint8Array([
             0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5, 0x30, 0x01, 0x67, 0x2b, 0xfe, 0xd7, 0xab, 0x76,
             0xca, 0x82, 0xc9, 0x7d, 0xfa, 0x59, 0x47, 0xf0, 0xad, 0xd4, 0xa2, 0xaf, 0x9c, 0xa4, 0x72, 0xc0,
@@ -160,7 +161,7 @@
             0x8c, 0xa1, 0x89, 0x0d, 0xbf, 0xe6, 0x42, 0x68, 0x41, 0x99, 0x2d, 0x0f, 0xb0, 0x54, 0xbb, 0x16
         ]);
 
-        // Complete Rcon table
+        // Rcon table
         const rCon = new Uint8Array([
             0x8d, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36, 0x6c, 0xd8, 0xab, 0x4d, 0x9a
         ]);
@@ -184,8 +185,9 @@
         }
 
         function generateRandomKey() {
-            // return crypto.getRandomValues(new Uint8Array(16));
-            return "SHLandSTid@Vegas"                                                               //HIDE
+            // return toHexString(crypto.getRandomValues(new Uint8Array(16)));
+            // return "SHLandSTid@Vegas"                                                               //HIDE
+            return 'c5da89fd02f2d9783b5bf696b3396ccf'
         }
 
         function rotWord(word) {
@@ -201,7 +203,7 @@
 
         async function aesEncrypt(message) {
             
-            const key = generateRandomKey();
+            // const key = generateRandomKey();
             
             // Convert name to bytes and pad
             const nameBytes = new TextEncoder().encode(message);
@@ -353,7 +355,7 @@
             document.getElementById('encrypt-btn').addEventListener('click', () => {                    //HIDE
                 const messageInput = document.getElementById('text');                                   //HIDE
                 canvasElement.textContent = '';                                                         //HIDE
-                keyElement.textContent = '';                                                            //HIDE
+                // keyElement.textContent = '';                                                            //HIDE
                 cryptoElement;textContent = '';                                                         //HIDE
                 aesEncrypt(messageInput.value);                                                         //HIDE
             });                                                                                         //HIDE
@@ -364,9 +366,34 @@
             if (!canvasElement.querySelector('svg')) {
                 const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
                 svg.setAttribute("viewBox", "0 0 148 210");
-                svg.style.width = "148px";
-                svg.style.height = "210px";
+                svg.setAttribute("width", "148");
+                svg.setAttribute("height", "210");
+                svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
                 svg.style.backgroundColor = "#f0f0f0";
+
+
+                // Ajouter un gestionnaire d'événements pour le clic droit
+                svg.addEventListener('contextmenu', (e) => {
+                    e.preventDefault();
+                    
+                    // Créer une copie du SVG pour l'export
+                    const clonedSvg = svg.cloneNode(true);
+                    // Ajouter le background en tant qu'attribut plutôt que style
+                    clonedSvg.setAttribute("fill", "#f0f0f0");
+                    
+                    const svgData = new XMLSerializer().serializeToString(clonedSvg);
+                    const svgBlob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
+                    
+                    // Créer le lien de téléchargement
+                    const downloadLink = document.createElement("a");
+                    downloadLink.href = URL.createObjectURL(svgBlob);
+                    downloadLink.download = "curve.svg";
+                    
+                    document.body.appendChild(downloadLink);
+                    downloadLink.click();
+                    document.body.removeChild(downloadLink);
+                    URL.revokeObjectURL(downloadLink.href);
+                });
                 
                 canvasElement.appendChild(svg);
             }
@@ -466,6 +493,8 @@
             }
             
             // Dessiner les cercles et les caches dans l'ordre
+            const lastCircles = [];
+
             curvePoints.forEach((point, index) => {
                 const radius = point.y/point.x*5;
                 
@@ -517,6 +546,39 @@
                     squarePath.setAttribute('fill', 'black');
                     squarePath.setAttribute('fill-rule', 'evenodd');
                     svg.appendChild(squarePath);
+
+                    // Créer un clipPath pour le carré
+                    const clipPath = document.createElementNS("http://www.w3.org/2000/svg", "clipPath");
+                    clipPath.setAttribute('id', 'squareClip');
+                    const clipRect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+                    clipRect.setAttribute('x', point.x - size);
+                    clipRect.setAttribute('y', point.y - size);
+                    clipRect.setAttribute('width', size * 2);
+                    clipRect.setAttribute('height', size * 2);
+                    clipPath.appendChild(clipRect);
+                    svg.appendChild(clipPath);
+
+                    // Créer un groupe pour les cercles clippés
+                    const clippedGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+                    clippedGroup.setAttribute('clip-path', 'url(#squareClip)');
+                    
+                    // Ajouter les 5 derniers cercles sans remplissage, mais uniquement dans la zone du carré
+                    for (let i = 0; i < 20; i++) {
+                        if (index - i >= 0) {
+                            const pt = curvePoints[curvePoints.length - 1 - i];
+                            const rad = pt.y/pt.x*5;
+                            const hollowCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                            hollowCircle.setAttribute('cx', pt.x);
+                            hollowCircle.setAttribute('cy', pt.y);
+                            hollowCircle.setAttribute('r', rad);
+                            hollowCircle.setAttribute('fill', 'none');
+                            hollowCircle.setAttribute('stroke', 'black');
+                            hollowCircle.setAttribute('stroke-width', '0.5');
+                            clippedGroup.appendChild(hollowCircle);
+                        }
+                    }
+                    
+                    svg.appendChild(clippedGroup);
                 }
             });
         }
