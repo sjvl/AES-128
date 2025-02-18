@@ -493,31 +493,82 @@
             }
             
             // Dessiner les cercles et les caches dans l'ordre
-            const lastCircles = [];
-
             curvePoints.forEach((point, index) => {
                 const radius = point.y/point.x*5;
                 
                 // Si c'est le premier point, dessiner d'abord le carré avec trou
-                if (index === 0) {
-                    const squarePath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                // if (index === 0) {
+                //     const squarePath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                //     const size = radius+2;
+                //     squarePath.setAttribute('d', `
+                //         M ${point.x - size},${point.y - size}
+                //         h ${size * 2}
+                //         v ${size * 2}
+                //         h ${-size * 2}
+                //         z
+                //         M ${point.x},${point.y}
+                //         m ${-radius},0
+                //         a ${radius},${radius} 0 1,0 ${radius * 2},0
+                //         a ${radius},${radius} 0 1,0 ${-radius * 2},0
+                //     `);
+                //     squarePath.setAttribute('fill', 'black');
+                //     squarePath.setAttribute('fill-rule', 'evenodd');
+                //     svg.appendChild(squarePath);
+                // }
+
+                if (index === 0) { // ou pour le dernier carré
+                    const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
                     const size = radius+2;
-                    squarePath.setAttribute('d', `
-                        M ${point.x - size},${point.y - size}
-                        h ${size * 2}
-                        v ${size * 2}
-                        h ${-size * 2}
-                        z
-                        M ${point.x},${point.y}
-                        m ${-radius},0
-                        a ${radius},${radius} 0 1,0 ${radius * 2},0
-                        a ${radius},${radius} 0 1,0 ${-radius * 2},0
-                    `);
-                    squarePath.setAttribute('fill', 'black');
-                    squarePath.setAttribute('fill-rule', 'evenodd');
-                    svg.appendChild(squarePath);
+                    const spacing = .333; // Espacement entre les lignes
+                    
+                    // Calculer le nombre de lignes nécessaires
+                    const numLines = Math.floor(size * 2 / spacing)+1;
+                    
+                    // Créer les lignes horizontales
+                    for(let i = 0; i < numLines; i++) {
+                        const y = point.y - size + (i * spacing);
+                        
+                        // Si la ligne est dans la zone du cercle
+                        const dy = Math.abs(y - point.y);
+                        if(dy > radius) {
+                            // Ligne complète car hors du cercle
+                            const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                            line.setAttribute('x1', point.x - size);
+                            line.setAttribute('y1', y);
+                            line.setAttribute('x2', point.x + size);
+                            line.setAttribute('y2', y);
+                            line.setAttribute('stroke', 'black');
+                            line.setAttribute('stroke-width', '0.5');
+                            group.appendChild(line);
+                        } else {
+                            // Deux segments de ligne de part et d'autre du cercle
+                            const dx = Math.sqrt(radius * radius - dy * dy);
+                            
+                            // Segment gauche
+                            const leftLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                            leftLine.setAttribute('x1', point.x - size);
+                            leftLine.setAttribute('y1', y);
+                            leftLine.setAttribute('x2', point.x - dx);
+                            leftLine.setAttribute('y2', y);
+                            leftLine.setAttribute('stroke', 'black');
+                            leftLine.setAttribute('stroke-width', '0.5');
+                            group.appendChild(leftLine);
+                            
+                            // Segment droit
+                            const rightLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                            rightLine.setAttribute('x1', point.x + dx);
+                            rightLine.setAttribute('y1', y);
+                            rightLine.setAttribute('x2', point.x + size);
+                            rightLine.setAttribute('y2', y);
+                            rightLine.setAttribute('stroke', 'black');
+                            rightLine.setAttribute('stroke-width', '0.5');
+                            group.appendChild(rightLine);
+                        }
+                    }
+                    
+                    svg.appendChild(group);
                 }
-                
+
                 // Dessiner le cercle
                 const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
                 circle.setAttribute('cx', point.x);
@@ -530,22 +581,72 @@
                 
                 // Si c'est le dernier point, dessiner le carré avec trou après le cercle
                 if (index === curvePoints.length - 1) {
-                    const squarePath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                    // const squarePath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                    // const size = radius+2;
+                    // squarePath.setAttribute('d', `
+                    //     M ${point.x - size},${point.y - size}
+                    //     h ${size * 2}
+                    //     v ${size * 2}
+                    //     h ${-size * 2}
+                    //     z
+                    //     M ${point.x},${point.y}
+                    //     m ${-radius},0
+                    //     a ${radius},${radius} 0 1,0 ${radius * 2},0
+                    //     a ${radius},${radius} 0 1,0 ${-radius * 2},0
+                    // `);
+                    // squarePath.setAttribute('fill', 'black');
+                    // squarePath.setAttribute('fill-rule', 'evenodd');
+                    // svg.appendChild(squarePath);
+                    const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
                     const size = radius+2;
-                    squarePath.setAttribute('d', `
-                        M ${point.x - size},${point.y - size}
-                        h ${size * 2}
-                        v ${size * 2}
-                        h ${-size * 2}
-                        z
-                        M ${point.x},${point.y}
-                        m ${-radius},0
-                        a ${radius},${radius} 0 1,0 ${radius * 2},0
-                        a ${radius},${radius} 0 1,0 ${-radius * 2},0
-                    `);
-                    squarePath.setAttribute('fill', 'black');
-                    squarePath.setAttribute('fill-rule', 'evenodd');
-                    svg.appendChild(squarePath);
+                    const spacing = .333; // Espacement entre les lignes
+                    
+                    // Calculer le nombre de lignes nécessaires
+                    const numLines = Math.floor(size * 2 / spacing)+1;
+                    
+                    // Créer les lignes horizontales
+                    for(let i = 0; i < numLines; i++) {
+                        const y = point.y - size + (i * spacing);
+                        
+                        // Si la ligne est dans la zone du cercle
+                        const dy = Math.abs(y - point.y);
+                        if(dy > radius) {
+                            // Ligne complète car hors du cercle
+                            const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                            line.setAttribute('x1', point.x - size);
+                            line.setAttribute('y1', y);
+                            line.setAttribute('x2', point.x + size);
+                            line.setAttribute('y2', y);
+                            line.setAttribute('stroke', 'black');
+                            line.setAttribute('stroke-width', '0.5');
+                            group.appendChild(line);
+                        } else {
+                            // Deux segments de ligne de part et d'autre du cercle
+                            const dx = Math.sqrt(radius * radius - dy * dy);
+                            
+                            // Segment gauche
+                            const leftLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                            leftLine.setAttribute('x1', point.x - size);
+                            leftLine.setAttribute('y1', y);
+                            leftLine.setAttribute('x2', point.x - dx);
+                            leftLine.setAttribute('y2', y);
+                            leftLine.setAttribute('stroke', 'black');
+                            leftLine.setAttribute('stroke-width', '0.5');
+                            group.appendChild(leftLine);
+                            
+                            // Segment droit
+                            const rightLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                            rightLine.setAttribute('x1', point.x + dx);
+                            rightLine.setAttribute('y1', y);
+                            rightLine.setAttribute('x2', point.x + size);
+                            rightLine.setAttribute('y2', y);
+                            rightLine.setAttribute('stroke', 'black');
+                            rightLine.setAttribute('stroke-width', '0.5');
+                            group.appendChild(rightLine);
+                        }
+                    }
+                    
+                    svg.appendChild(group);
 
                     // Créer un clipPath pour le carré
                     const clipPath = document.createElementNS("http://www.w3.org/2000/svg", "clipPath");
