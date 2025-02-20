@@ -377,15 +377,21 @@
                 svg.addEventListener('contextmenu', (e) => {
                     e.preventDefault();
                     
+                    // Récupérer le nom depuis l'input
+                    const inputText = document.getElementById('text').value;
+                    // Nettoyer le texte pour en faire un nom de fichier valide
+                    const fileName = inputText.replace(/[^a-zA-Z0-9 ]/g, '_');
+                    
                     // Créer la version optimisée du SVG
                     const optimizedSvg = createOptimizedSVG(svg);
                     
                     const svgData = new XMLSerializer().serializeToString(optimizedSvg);
                     const svgBlob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
                     
+                    // Créer et déclencher le téléchargement avec le nom personnalisé
                     const downloadLink = document.createElement("a");
                     downloadLink.href = URL.createObjectURL(svgBlob);
-                    downloadLink.download = "curve.svg";
+                    downloadLink.download = `${fileName}.svg`;
                     
                     document.body.appendChild(downloadLink);
                     downloadLink.click();
@@ -656,6 +662,13 @@
                             }
                             
                             if (points.length > 2) {
+                                // Ajouter le premier point à la fin avec angle 2π
+                                points.push({
+                                    x: points[0].x,
+                                    y: points[0].y,
+                                    angle: points[0].angle + 2 * Math.PI
+                                });
+
                                 // Trier les points par angle pour s'assurer de l'ordre
                                 points.sort((a, b) => a.angle - b.angle);
                                 
@@ -772,49 +785,161 @@
                 const radius = point.radius;
 
                 // Premier carré hachuré
-                if (index === 0) {
-                    const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
-                    const size = radius + 2;
-                    const spacing = .333;
-                    const numLines = Math.floor(size * 2 / spacing) + 1;
-                    
-                    for(let i = 0; i < numLines; i++) {
-                        const y = point.y - size + (i * spacing);
-                        const dy = Math.abs(y - point.y);
-                        
-                        if(dy > radius) {
-                            const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-                            line.setAttribute('x1', point.x - size);
-                            line.setAttribute('y1', y);
-                            line.setAttribute('x2', point.x + size);
-                            line.setAttribute('y2', y);
-                            line.setAttribute('stroke', 'black');
-                            line.setAttribute('stroke-width', '0.5');
-                            group.appendChild(line);
-                        } else {
-                            const dx = Math.sqrt(radius * radius - dy * dy);
-                            
-                            const leftLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
-                            leftLine.setAttribute('x1', point.x - size);
-                            leftLine.setAttribute('y1', y);
-                            leftLine.setAttribute('x2', point.x - dx);
-                            leftLine.setAttribute('y2', y);
-                            leftLine.setAttribute('stroke', 'black');
-                            leftLine.setAttribute('stroke-width', '0.5');
-                            group.appendChild(leftLine);
-                            
-                            const rightLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
-                            rightLine.setAttribute('x1', point.x + dx);
-                            rightLine.setAttribute('y1', y);
-                            rightLine.setAttribute('x2', point.x + size);
-                            rightLine.setAttribute('y2', y);
-                            rightLine.setAttribute('stroke', 'black');
-                            rightLine.setAttribute('stroke-width', '0.5');
-                            group.appendChild(rightLine);
-                        }
+if (index === 0) {
+    const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    const size = radius + 2;
+    const spacing = .333;
+    const numLines = Math.floor(size * 2 / spacing) + 1;
+    
+    for(let i = 0; i < numLines; i++) {
+        const y = point.y - size + (i * spacing);
+        const dy = Math.abs(y - point.y);
+        
+        if(dy > radius) {
+            // Pour chaque ligne complète, tester les points le long de la ligne
+            const numTestPoints = Math.ceil(size * 2);  // Un point par unité
+            let visibleSegments = [];
+            let currentSegment = null;
+
+            for(let x = point.x - size; x <= point.x + size; x += 0.5) {
+                let isVisible = true;
+                
+                // Vérifier si ce point est caché par un des cercles suivants
+                for (let j = index + 1; j < curvePoints.length; j++) {
+                    const nextPoint = curvePoints[j];
+                    const dx = x - nextPoint.x;
+                    const dy = y - nextPoint.y;
+                    const distSquared = dx * dx + dy * dy;
+                    const nextRadiusSquared = nextPoint.radius * nextPoint.radius;
+
+                    if (distSquared < nextRadiusSquared) {
+                        isVisible = false;
+                        break;
                     }
-                    svg.appendChild(group);
                 }
+
+                if (isVisible) {
+                    if (!currentSegment) {
+                        currentSegment = {start: x, y: y};
+                    }
+                } else if (currentSegment) {
+                    currentSegment.end = x;
+                    visibleSegments.push(currentSegment);
+                    currentSegment = null;
+                }
+            }
+
+            // N'oubliez pas le dernier segment si on termine avec un point visible
+            if (currentSegment) {
+                currentSegment.end = point.x + size;
+                visibleSegments.push(currentSegment);
+            }
+
+            // Dessiner les segments visibles
+            visibleSegments.forEach(segment => {
+                const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                line.setAttribute('x1', segment.start);
+                line.setAttribute('y1', y);
+                line.setAttribute('x2', segment.end);
+                line.setAttribute('y2', y);
+                line.setAttribute('stroke', 'black');
+                line.setAttribute('stroke-width', '0.5');
+                group.appendChild(line);
+            });
+        } else {
+            // Pour les lignes coupées par le cercle central
+            const dx = Math.sqrt(radius * radius - dy * dy);
+            
+            // Segment gauche
+            let visibleSegments = [];
+            let currentSegment = null;
+            
+            // Tester le segment gauche point par point
+            for(let x = point.x - size; x <= point.x - dx; x += 0.5) {
+                let isVisible = true;
+                
+                // Vérifier si ce point est caché par un des cercles suivants
+                for (let j = index + 1; j < curvePoints.length; j++) {
+                    const nextPoint = curvePoints[j];
+                    const dx = x - nextPoint.x;
+                    const dy = y - nextPoint.y;
+                    const distSquared = dx * dx + dy * dy;
+                    const nextRadiusSquared = nextPoint.radius * nextPoint.radius;
+
+                    if (distSquared < nextRadiusSquared) {
+                        isVisible = false;
+                        break;
+                    }
+                }
+
+                if (isVisible) {
+                    if (!currentSegment) {
+                        currentSegment = {start: x, y: y};
+                    }
+                } else if (currentSegment) {
+                    currentSegment.end = x;
+                    visibleSegments.push(currentSegment);
+                    currentSegment = null;
+                }
+            }
+
+            // N'oubliez pas le dernier segment si on termine avec un point visible
+            if (currentSegment) {
+                currentSegment.end = point.x - dx;
+                visibleSegments.push(currentSegment);
+            }
+
+            // Tester le segment droit point par point
+            currentSegment = null;
+            for(let x = point.x + dx; x <= point.x + size; x += 0.5) {
+                let isVisible = true;
+                
+                // Vérifier si ce point est caché par un des cercles suivants
+                for (let j = index + 1; j < curvePoints.length; j++) {
+                    const nextPoint = curvePoints[j];
+                    const dx = x - nextPoint.x;
+                    const dy = y - nextPoint.y;
+                    const distSquared = dx * dx + dy * dy;
+                    const nextRadiusSquared = nextPoint.radius * nextPoint.radius;
+
+                    if (distSquared < nextRadiusSquared) {
+                        isVisible = false;
+                        break;
+                    }
+                }
+
+                if (isVisible) {
+                    if (!currentSegment) {
+                        currentSegment = {start: x, y: y};
+                    }
+                } else if (currentSegment) {
+                    currentSegment.end = x;
+                    visibleSegments.push(currentSegment);
+                    currentSegment = null;
+                }
+            }
+
+            // N'oubliez pas le dernier segment si on termine avec un point visible
+            if (currentSegment) {
+                currentSegment.end = point.x + size;
+                visibleSegments.push(currentSegment);
+            }
+
+            // Dessiner tous les segments visibles
+            visibleSegments.forEach(segment => {
+                const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                line.setAttribute('x1', segment.start);
+                line.setAttribute('y1', y);
+                line.setAttribute('x2', segment.end);
+                line.setAttribute('y2', y);
+                line.setAttribute('stroke', 'black');
+                line.setAttribute('stroke-width', '0.5');
+                group.appendChild(line);
+            });
+        }
+    }
+    svg.appendChild(group);
+}
 
                 // La partie visible des cercles
                 if (index < curvePoints.length - 1) {  // Ne pas dessiner le dernier cercle ici
@@ -952,6 +1077,15 @@
                                     points.push({x, y, angle});
                                 }
                             }
+
+                            // Si on a des points, ajouter le premier à la fin avec angle 2π
+                            if (points.length > 0) {
+                                points.push({
+                                    x: points[0].x,
+                                    y: points[0].y,
+                                    angle: 2 * Math.PI
+                                });
+                            }
                             
                             if (points.length > 2) {
                                 points.sort((a, b) => a.angle - b.angle);
@@ -995,9 +1129,6 @@
 
             return svg;
         }
-
-
-
 </script>
 </body>
 </html>
