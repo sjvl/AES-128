@@ -115,14 +115,14 @@
         </div>
         <div class="col">
             <div style="display: flex; width: 100%;">
-                <input type="text" class="text-input" id="text" placeholder="Type text..." value="John Doe">
+                <input type="text" class="text-input" id="text" placeholder="Something to encrypt" value="John Doe">
                 <button class="encrypt-button" id="encrypt-btn">AES&nbsp;128</button>
             </div>
             <div class="long-tile">
-                <div id="key">..</div>
+                <div id="key">&nbsp;</div>
             </div>
             <div class="long-tile">
-                <div id="crypto">..</div>
+                <div id="crypto">&nbsp;</div>
                 <p id="AES" style="position: absolute; left: calc(7.2rem + 40px); top: 230px; font-size: xx-small; color: #4CAF50;"></p>
             </div>
         </div>
@@ -363,7 +363,6 @@
         });                                                                                             //HIDE
     </script>
     <script>
-
         const visualizeState = (state) => {
             // Initialisation du SVG
             if (!canvasElement.querySelector('svg')) {
@@ -375,19 +374,15 @@
                 svg.style.backgroundColor = "#f0f0f0";
 
 
-                // Ajouter un gestionnaire d'événements pour le clic droit
                 svg.addEventListener('contextmenu', (e) => {
                     e.preventDefault();
                     
-                    // Créer une copie du SVG pour l'export
-                    const clonedSvg = svg.cloneNode(true);
-                    // Ajouter le background en tant qu'attribut plutôt que style
-                    clonedSvg.setAttribute("fill", "#f0f0f0");
+                    // Créer la version optimisée du SVG
+                    const optimizedSvg = createOptimizedSVG(svg);
                     
-                    const svgData = new XMLSerializer().serializeToString(clonedSvg);
+                    const svgData = new XMLSerializer().serializeToString(optimizedSvg);
                     const svgBlob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
                     
-                    // Créer le lien de téléchargement
                     const downloadLink = document.createElement("a");
                     downloadLink.href = URL.createObjectURL(svgBlob);
                     downloadLink.download = "curve.svg";
@@ -638,68 +633,68 @@
 
                     // Dessiner les derniers cercles intérieurs
                     for (let i = 0; i < 20; i++) {
-    if (index - i >= 0) {
-        const pt = curvePoints[curvePoints.length - 1 - i];
-        const rad = pt.y/pt.x*5;
-        
-        // Générer des points tout autour du cercle
-        const points = [];
-        const numPoints = 64;
-        
-        // Stocker tous les points avec leur angle
-        for (let j = 0; j < numPoints; j++) {
-            const angle = (j * 2 * Math.PI) / numPoints;
-            const x = pt.x + Math.cos(angle) * rad;
-            const y = pt.y + Math.sin(angle) * rad;
-            
-            if (x >= point.x - size && 
-                x <= point.x + size && 
-                y >= point.y - size && 
-                y <= point.y + size) {
-                points.push({x, y, angle});
-            }
-        }
-        
-        if (points.length > 2) {
-            // Trier les points par angle pour s'assurer de l'ordre
-            points.sort((a, b) => a.angle - b.angle);
-            
-            // Trouver les "trous" dans la séquence d'angles
-            const segments = [];
-            let currentSegment = [points[0]];
-            
-            for (let j = 1; j < points.length; j++) {
-                const angleDiff = points[j].angle - points[j-1].angle;
-                if (angleDiff > (3 * Math.PI / numPoints)) { // Si l'écart est trop grand
-                    if (currentSegment.length > 2) {
-                        segments.push(currentSegment);
+                        if (index - i >= 0) {
+                            const pt = curvePoints[curvePoints.length - 1 - i];
+                            const rad = pt.y/pt.x*5;
+                            
+                            // Générer des points tout autour du cercle
+                            const points = [];
+                            const numPoints = 64;
+                            
+                            // Stocker tous les points avec leur angle
+                            for (let j = 0; j < numPoints; j++) {
+                                const angle = (j * 2 * Math.PI) / numPoints;
+                                const x = pt.x + Math.cos(angle) * rad;
+                                const y = pt.y + Math.sin(angle) * rad;
+                                
+                                if (x >= point.x - size && 
+                                    x <= point.x + size && 
+                                    y >= point.y - size && 
+                                    y <= point.y + size) {
+                                    points.push({x, y, angle});
+                                }
+                            }
+                            
+                            if (points.length > 2) {
+                                // Trier les points par angle pour s'assurer de l'ordre
+                                points.sort((a, b) => a.angle - b.angle);
+                                
+                                // Trouver les "trous" dans la séquence d'angles
+                                const segments = [];
+                                let currentSegment = [points[0]];
+                                
+                                for (let j = 1; j < points.length; j++) {
+                                    const angleDiff = points[j].angle - points[j-1].angle;
+                                    if (angleDiff > (3 * Math.PI / numPoints)) { // Si l'écart est trop grand
+                                        if (currentSegment.length > 2) {
+                                            segments.push(currentSegment);
+                                        }
+                                        currentSegment = [];
+                                    }
+                                    currentSegment.push(points[j]);
+                                }
+                                if (currentSegment.length > 2) {
+                                    segments.push(currentSegment);
+                                }
+                                
+                                // Créer un path pour chaque segment continu
+                                segments.forEach(segment => {
+                                    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                                    let d = `M ${segment[0].x},${segment[0].y}`;
+                                    
+                                    for (let j = 1; j < segment.length; j++) {
+                                        d += ` L ${segment[j].x},${segment[j].y}`;
+                                    }
+                                    
+                                    path.setAttribute('d', d);
+                                    path.setAttribute('fill', 'none');
+                                    path.setAttribute('stroke', 'black');
+                                    path.setAttribute('stroke-width', '0.5');
+                                    svg.appendChild(path);
+                                });
+                            }
+                        }
                     }
-                    currentSegment = [];
-                }
-                currentSegment.push(points[j]);
-            }
-            if (currentSegment.length > 2) {
-                segments.push(currentSegment);
-            }
-            
-            // Créer un path pour chaque segment continu
-            segments.forEach(segment => {
-                const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-                let d = `M ${segment[0].x},${segment[0].y}`;
-                
-                for (let j = 1; j < segment.length; j++) {
-                    d += ` L ${segment[j].x},${segment[j].y}`;
-                }
-                
-                path.setAttribute('d', d);
-                path.setAttribute('fill', 'none');
-                path.setAttribute('stroke', 'black');
-                path.setAttribute('stroke-width', '0.5');
-                svg.appendChild(path);
-            });
-        }
-    }
-}
                 }
             });
         }
@@ -750,6 +745,259 @@
             // Démarrer l'animation des textes
             displayNextState();
         }
-    </script>
+
+        function createOptimizedSVG(originalSvg) {
+            // Créer un nouveau SVG avec les mêmes dimensions
+            const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+            svg.setAttribute("viewBox", originalSvg.getAttribute("viewBox"));
+            svg.setAttribute("width", originalSvg.getAttribute("width"));
+            svg.setAttribute("height", originalSvg.getAttribute("height"));
+            svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+            svg.setAttribute("fill", "#f0f0f0");
+
+            // Récupérer les points de la courbe depuis le SVG original
+            let curvePoints = [];
+            originalSvg.querySelectorAll('circle').forEach(circle => {
+                if (circle.getAttribute('r') !== '0.005') { // Ignorer les points de coin
+                    curvePoints.push({
+                        x: parseFloat(circle.getAttribute('cx')),
+                        y: parseFloat(circle.getAttribute('cy')),
+                        radius: parseFloat(circle.getAttribute('r'))
+                    });
+                }
+            });
+
+            // Dessiner les éléments
+            curvePoints.forEach((point, index) => {
+                const radius = point.radius;
+
+                // Premier carré hachuré
+                if (index === 0) {
+                    const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+                    const size = radius + 2;
+                    const spacing = .333;
+                    const numLines = Math.floor(size * 2 / spacing) + 1;
+                    
+                    for(let i = 0; i < numLines; i++) {
+                        const y = point.y - size + (i * spacing);
+                        const dy = Math.abs(y - point.y);
+                        
+                        if(dy > radius) {
+                            const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                            line.setAttribute('x1', point.x - size);
+                            line.setAttribute('y1', y);
+                            line.setAttribute('x2', point.x + size);
+                            line.setAttribute('y2', y);
+                            line.setAttribute('stroke', 'black');
+                            line.setAttribute('stroke-width', '0.5');
+                            group.appendChild(line);
+                        } else {
+                            const dx = Math.sqrt(radius * radius - dy * dy);
+                            
+                            const leftLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                            leftLine.setAttribute('x1', point.x - size);
+                            leftLine.setAttribute('y1', y);
+                            leftLine.setAttribute('x2', point.x - dx);
+                            leftLine.setAttribute('y2', y);
+                            leftLine.setAttribute('stroke', 'black');
+                            leftLine.setAttribute('stroke-width', '0.5');
+                            group.appendChild(leftLine);
+                            
+                            const rightLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                            rightLine.setAttribute('x1', point.x + dx);
+                            rightLine.setAttribute('y1', y);
+                            rightLine.setAttribute('x2', point.x + size);
+                            rightLine.setAttribute('y2', y);
+                            rightLine.setAttribute('stroke', 'black');
+                            rightLine.setAttribute('stroke-width', '0.5');
+                            group.appendChild(rightLine);
+                        }
+                    }
+                    svg.appendChild(group);
+                }
+
+                // La partie visible des cercles
+                if (index < curvePoints.length - 1) {  // Ne pas dessiner le dernier cercle ici
+                    const numPoints = 64;
+                    const currentPoints = [];
+                    
+                    for (let i = 0; i < numPoints; i++) {
+                        const angle = (i * 2 * Math.PI) / numPoints;
+                        currentPoints.push({
+                            x: point.x + Math.cos(angle) * radius,
+                            y: point.y + Math.sin(angle) * radius,
+                            angle: angle
+                        });
+                    }
+
+                    // Ajouter le premier point à la fin pour boucler
+                    currentPoints.push({
+                        x: currentPoints[0].x,
+                        y: currentPoints[0].y,
+                        angle: 2 * Math.PI
+                    });
+
+                    const segments = [];
+                    let currentSegment = [];
+
+                    currentPoints.forEach((pt) => {
+                        let isVisible = true;
+
+                        for (let j = index + 1; j < curvePoints.length; j++) {
+                            const nextPoint = curvePoints[j];
+                            const dx = pt.x - nextPoint.x;
+                            const dy = pt.y - nextPoint.y;
+                            const distSquared = dx * dx + dy * dy;
+                            const nextRadiusSquared = nextPoint.radius * nextPoint.radius;
+
+                            if (distSquared < nextRadiusSquared) {
+                                isVisible = false;
+                                break;
+                            }
+                        }
+
+                        if (isVisible) {
+                            currentSegment.push(pt);
+                        } else if (currentSegment.length > 0) {
+                            if (currentSegment.length > 1) {
+                                segments.push([...currentSegment]);
+                            }
+                            currentSegment = [];
+                        }
+                    });
+
+                    if (currentSegment.length > 1) {
+                        segments.push(currentSegment);
+                    }
+
+                    segments.forEach(segment => {
+                        if (segment.length > 1) {
+                            const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                            const pathData = segment.map((p, i) => 
+                                (i === 0 ? `M ${p.x},${p.y}` : ` L ${p.x},${p.y}`)
+                            ).join('');
+                            
+                            path.setAttribute('d', pathData);
+                            path.setAttribute('fill', 'none');
+                            path.setAttribute('stroke', 'black');
+                            path.setAttribute('stroke-width', '0.5');
+                            svg.appendChild(path);
+                        }
+                    });
+                }
+
+                // Dernier carré et cercles tronqués
+                if (index === curvePoints.length - 1) {
+                    // Dessiner le dernier carré hachuré
+                    const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+                    const size = radius + 2;
+                    const spacing = .333;
+                    const numLines = Math.floor(size * 2 / spacing) + 1;
+                    
+                    for(let i = 0; i < numLines; i++) {
+                        const y = point.y - size + (i * spacing);
+                        const dy = Math.abs(y - point.y);
+                        
+                        if(dy > radius) {
+                            const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                            line.setAttribute('x1', point.x - size);
+                            line.setAttribute('y1', y);
+                            line.setAttribute('x2', point.x + size);
+                            line.setAttribute('y2', y);
+                            line.setAttribute('stroke', 'black');
+                            line.setAttribute('stroke-width', '0.5');
+                            group.appendChild(line);
+                        } else {
+                            const dx = Math.sqrt(radius * radius - dy * dy);
+                            
+                            const leftLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                            leftLine.setAttribute('x1', point.x - size);
+                            leftLine.setAttribute('y1', y);
+                            leftLine.setAttribute('x2', point.x - dx);
+                            leftLine.setAttribute('y2', y);
+                            leftLine.setAttribute('stroke', 'black');
+                            leftLine.setAttribute('stroke-width', '0.5');
+                            group.appendChild(leftLine);
+                            
+                            const rightLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                            rightLine.setAttribute('x1', point.x + dx);
+                            rightLine.setAttribute('y1', y);
+                            rightLine.setAttribute('x2', point.x + size);
+                            rightLine.setAttribute('y2', y);
+                            rightLine.setAttribute('stroke', 'black');
+                            rightLine.setAttribute('stroke-width', '0.5');
+                            group.appendChild(rightLine);
+                        }
+                    }
+                    svg.appendChild(group);
+
+                    // Dessiner les cercles tronqués dans le carré
+                    for (let i = 0; i < 20; i++) {
+                        if (index - i >= 0) {
+                            const pt = curvePoints[curvePoints.length - 1 - i];
+                            const rad = pt.radius;
+                            const points = [];
+                            const numPoints = 64;
+                            
+                            // Points du cercle dans les limites du carré
+                            for (let j = 0; j < numPoints; j++) {
+                                const angle = (j * 2 * Math.PI) / numPoints;
+                                const x = pt.x + Math.cos(angle) * rad;
+                                const y = pt.y + Math.sin(angle) * rad;
+                                
+                                if (x >= point.x - size && 
+                                    x <= point.x + size && 
+                                    y >= point.y - size && 
+                                    y <= point.y + size) {
+                                    points.push({x, y, angle});
+                                }
+                            }
+                            
+                            if (points.length > 2) {
+                                points.sort((a, b) => a.angle - b.angle);
+                                
+                                const segments = [];
+                                let currentSegment = [points[0]];
+                                
+                                for (let j = 1; j < points.length; j++) {
+                                    const angleDiff = points[j].angle - points[j-1].angle;
+                                    if (angleDiff > (3 * Math.PI / numPoints)) {
+                                        if (currentSegment.length > 2) {
+                                            segments.push(currentSegment);
+                                        }
+                                        currentSegment = [];
+                                    }
+                                    currentSegment.push(points[j]);
+                                }
+                                if (currentSegment.length > 2) {
+                                    segments.push(currentSegment);
+                                }
+                                
+                                segments.forEach(segment => {
+                                    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                                    let d = `M ${segment[0].x},${segment[0].y}`;
+                                    
+                                    for (let j = 1; j < segment.length; j++) {
+                                        d += ` L ${segment[j].x},${segment[j].y}`;
+                                    }
+                                    
+                                    path.setAttribute('d', d);
+                                    path.setAttribute('fill', 'none');
+                                    path.setAttribute('stroke', 'black');
+                                    path.setAttribute('stroke-width', '0.5');
+                                    svg.appendChild(path);
+                                });
+                            }
+                        }
+                    }
+                }
+            });
+
+            return svg;
+        }
+
+
+
+</script>
 </body>
 </html>
