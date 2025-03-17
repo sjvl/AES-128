@@ -38,7 +38,10 @@
             padding: 10px;
             border-radius: 8px;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+        .algo {
             display: flex;
+            justify-content: center;
         }
 
         .tile {
@@ -62,10 +65,10 @@
 
         .canvas {
             text-align: center;
-            padding-top: 10px;
+            padding-top: 20px;
             margin:  1rem;
-            width: 317px;
-            height: 430px;
+            width: 337px;
+            height: 440px;
             background-color: #f0f0f0;
             border-radius: 8px;
         }
@@ -108,25 +111,30 @@
 </head>
 <body>
     <div id="content">
-        <div class="col">
-            <div class="tile">Strg</div>
-            <div class="tile">K3y</div>
-            <div class="tile" >C1ph</div>
+        <div class="algo">
+            <div class="col">
+                <div class="tile">Strg</div>
+                <div class="tile">K3y</div>
+                <div class="tile" >C1ph</div>
+            </div>
+            <div class="col">
+                <div style="display: flex; width: 100%;">
+                    <input type="text" class="text-input" id="text" placeholder="Something to encrypt" value="Stid">
+                    <button class="encrypt-button" id="encrypt-btn">AES&nbsp;128</button>
+                </div>
+                <div class="long-tile">
+                    <div id="key">&nbsp;</div>
+                </div>
+                <div class="long-tile">
+                    <div id="crypto">&nbsp;</div>
+                    <p id="AES" style="position: absolute; left: calc(7.2rem + 40px); top: 230px; font-size: xx-small; color: #4CAF50;"></p>
+                </div>
+            </div>
         </div>
-        <div class="col">
-            <div style="display: flex; width: 100%;">
-                <input type="text" class="text-input" id="text" placeholder="Something to encrypt" value="Stid">
-                <button class="encrypt-button" id="encrypt-btn">AES&nbsp;128</button>
-            </div>
-            <div class="long-tile">
-                <div id="key">&nbsp;</div>
-            </div>
-            <div class="long-tile">
-                <div id="crypto">&nbsp;</div>
-                <p id="AES" style="position: absolute; left: calc(7.2rem + 40px); top: 230px; font-size: xx-small; color: #4CAF50;"></p>
-            </div>
+        <div class="algo">
+
+            <div class="canvas" id="canvas"></div>
         </div>
-        <div class="canvas" id="canvas"></div>
     </div>
 
     <pre id="background-code">
@@ -142,7 +150,7 @@
         // || The 16 bits of the cipher are used to create (x,y) coordinates of 8 points.
         // || These points are interpolated into a spline on which circles are drawn, 
         // || to plot a “tunnel between two doors”, evoking the STid logotype and generating a unique signature.
-        
+
 
 
         let key = generateKey();                                                                              
