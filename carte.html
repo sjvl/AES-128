@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Ciphway Postcard</title>
+    <style>
+        @page {
+            size: 148mm 210mm;
+            margin: 0;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Courier New', monospace;
+            width: 148mm;
+            height: 210mm;
+            background-color: white;
+            overflow: hidden;
+            position: relative;
+        }
+        .content {
+            position: absolute;
+            padding: 20mm;
+            box-sizing: border-box;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .title {
+            font-size: 20pt;
+            font-weight: bold;
+            /* margin-bottom: 10mm; */
+            letter-spacing: 1px;
+        }
+        .byline {
+            font-size: 10pt;
+            margin-bottom: 15mm;
+            color: #333;
+        }
+        .description {
+            font-size: 11pt;
+            line-height: 1.5;
+        }
+        .description p {
+            margin-bottom: 5mm;
+        }
+        .comment {
+            color: #666;
+        }
+        .footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .copyright {
+            font-size: 10pt;
+            color: #999;
+        }
+        .logos {
+            display: flex;
+            gap: 5mm;
+            align-items: center;
+        }
+        .logo {
+            height: 10mm;  /* Hauteur fixe pour les logos */
+            object-fit: contain; /* Conserve les proportions */
+            filter: grayscale(100%);  /* Rend l'image noir et blanc */
+        }
+        .logo-shl {
+            height: 20mm;
+            max-width: 30mm;
+            object-fit: contain;
+            filter: grayscale(100%) invert(100%);  /* Rend l'image noir et blanc ET l'inverse */
+            padding: 3mm;
+            border-radius: 2mm;  /* Coins arrondis */
+        }
+        /* Ornamental elements */
+        .corner {
+            position: absolute;
+            width: 10mm;
+            height: 10mm;
+            border: 1px solid #999;
+        }
+        .top-left {
+            top: 10mm;
+            left: 10mm;
+            border-right: none;
+            border-bottom: none;
+        }
+        .top-right {
+            top: 10mm;
+            right: 10mm;
+            border-left: none;
+            border-bottom: none;
+        }
+        .bottom-left {
+            bottom: 10mm;
+            left: 10mm;
+            border-right: none;
+            border-top: none;
+        }
+        .bottom-right {
+            bottom: 10mm;
+            right: 10mm;
+            border-left: none;
+            border-top: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Ornamental corners -->
+    <div class="corner top-left"></div>
+    <div class="corner top-right"></div>
+    <div class="corner bottom-left"></div>
+    <div class="corner bottom-right"></div>
+    
+    <div class="content">
+        <div>
+            <div class="title">Ciphway</div>
+            <div class="byline">Art and code by @sjvl for SHL n STid.</div>
+            
+            <div class="description">
+                <p>This piece displays all the steps of AES-128 encryption process.</p>
+                <p>The 16 bits of the ciph are used to create (x,y) coordinates of 8 points.</p>
+                <p>Those points are interpolated in a spline on which circles are drawn, to create a plottable "tunnel between two gates", evoking the STid logotype.</p>
+            </div>
+            <!-- <div class="copyright">© 2025</div> -->
+        </div>
+        
+        <div class="footer">
+            <div> </div>
+            <div class="logos">
+                <img src="https://stid-security.com/images/logostid.png" alt="STid" class="logo">
+                <img src="https://www.shl.contact/_ipx/_/logo.png" alt="SHL" class="logo-shl">
+            </div>
+        </div>
+    </div>
+</body>
+</html>

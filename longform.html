@@ -115,7 +115,7 @@
         </div>
         <div class="col">
             <div style="display: flex; width: 100%;">
-                <input type="text" class="text-input" id="text" placeholder="Something to encrypt" value="John Doe" maxlength="32">
+                <input type="text" class="text-input" id="text" placeholder="Something to encrypt" value="John Doe">
                 <button class="encrypt-button" id="encrypt-btn">AES&nbsp;128</button>
             </div>
             <div class="long-tile">
@@ -140,14 +140,12 @@
         // || This piece display all the steps of AES-128 encryption process.
         // || The 16 bits of the cipher are used to create (x,y) coordinates of 8 points.
         // || Those points are interpolated in a spline on which circles are drawn,
-        // || to create a plottable "tunnel between two gates", evoking the STid logotype.
+        // || to create a plottable "tunnel between two portals", evoking the STid logotype.
 
 
 
 
-        let key = generateKey();   
-        const messageInput = document.getElementById('text');                                   //HIDE
-                                                                           
+        const key = generateKey();                                                                              
 
         // const inputElement = document.getElementById('text');                                        //HIDE
         const cryptoElement = document.getElementById('crypto');                                        //HIDE
@@ -199,8 +197,8 @@
         }
 
         function generateKey() {
-            return toHexString(crypto.getRandomValues(new Uint8Array(16)));
-            // return 'c5da89fd02f2d9783b5bf696b3396ccf'                                                  //HIDE
+            // return toHexString(crypto.getRandomValues(new Uint8Array(16)));
+            return 'c5da89fd02f2d9783b5bf696b3396ccf'                                                  //HIDE
         }
 
         function rotWord(word) {
@@ -223,9 +221,7 @@
             
             displayStates.push({                            //HIDE
                 text: `${toHexString(padded)} `,            //HIDE
-                message: ''           //HIDE
-                // message: 'Hexadecimal conversion'           //HIDE
-
+                message: 'Hexadecimal conversion'           //HIDE
             });                                             //HIDE
 
             // Key expansion
@@ -356,8 +352,7 @@
             });                                                                                         //HIDE
                                                                                                         //HIDE
             document.getElementById('encrypt-btn').addEventListener('click', async () => {              //HIDE
-                // const messageInput = document.getElementById('text');                                //HIDE
-                key = generateKey();                                                                    //HIDE
+                const messageInput = document.getElementById('text');                                   //HIDE
                 canvasElement.textContent = '';                                                         //HIDE
                 keyElement.textContent = key;                                                           //HIDE
                 cryptoElement.textContent = '';                                                         //HIDE
@@ -369,9 +364,10 @@
     </script>
     
     <script>
-        const visualizeState = (state, text = messageInput.value) => {
-            // Données de la police Hershey
-            const fontData = {
+    const visualizeState = (state) => {
+
+        // Données de la police Hershey
+        const fontData = {
                 "name": "Sans 1-stroke",
                 "chars": [
             {
@@ -757,430 +753,493 @@
             ]
  
             };
-            
-            // Fonction pour obtenir les données d'un caractère par son code ASCII
-            function getCharByAscii(ascii) {
-                const index = ascii - 32; // Les caractères commencent à l'espace (ASCII 32)
-                if (index >= 0 && index < fontData.chars.length) {
-                    return fontData.chars[index - 1]; // Correction du décalage
-                }
-                return null;
-            }
-            
-            // Initialisation du SVG
-            if (!canvasElement.querySelector('svg')) {
-                const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-                svg.setAttribute("viewBox", "0 0 148 210");
-                svg.setAttribute("width", "148");
-                svg.setAttribute("height", "210");
-                svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
-                svg.style.backgroundColor = "#f0f0f0";
 
-                svg.addEventListener('contextmenu', (e) => {
-                    e.preventDefault();
-                    
-                    // Récupérer le nom depuis l'input
-                    const inputText = document.getElementById('text').value;
-                    // Nettoyer le texte pour en faire un nom de fichier valide
-                    const fileName = inputText.replace(/[^a-zA-Z0-9 ]/g, '_');
-                    
-                    // Créer la version optimisée du SVG
-                    const optimizedSvg = createOptimizedSVG(svg);
-                    
-                    const svgData = new XMLSerializer().serializeToString(optimizedSvg);
-                    const svgBlob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
-                    
-                    // Créer et déclencher le téléchargement avec le nom personnalisé
-                    const downloadLink = document.createElement("a");
-                    downloadLink.href = URL.createObjectURL(svgBlob);
-                    downloadLink.download = `${fileName}.svg`;
-                    
-                    document.body.appendChild(downloadLink);
-                    downloadLink.click();
-                    document.body.removeChild(downloadLink);
-                    URL.revokeObjectURL(downloadLink.href);
-                });
+        // Fonction pour obtenir les données d'un caractère par son code ASCII
+        function getCharByAscii(ascii) {
+            const index = ascii - 32; // Les caractères commencent à l'espace (ASCII 32)
+            if (index >= 0 && index < fontData.chars.length) {
+                return fontData.chars[index - 1]; // Correction du décalage
+            }
+            return null;
+        }
+
+        console.log(state);
+        // Initialisation du SVG
+        if (!canvasElement.querySelector('svg')) {
+            const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+            svg.setAttribute("viewBox", "0 0 148 210");
+            svg.setAttribute("width", "148");
+            svg.setAttribute("height", "210");
+            svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+            svg.style.backgroundColor = "#f0f0f0";
+
+            svg.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
                 
-                canvasElement.appendChild(svg);
-            }
-
-            const svg = canvasElement.querySelector('svg');
-            while (svg.firstChild) {
-                svg.removeChild(svg.firstChild);
-            }
-            
-            const margin = 30;
-            const width = 148 - (40);
-            const height = 210 - (2 * margin);
-
-            // Ajouter les points aux coins
-            const corners = [
-                {x: 0, y: 0},             // Coin haut gauche
-                {x: 148, y: 0},           // Coin haut droit
-                {x: 148 , y: 210 },       // Coin bas droit
-                {x: 0, y: 210}            // Coin bas gauche
-            ];
-
-            corners.forEach(corner => {
-                const point = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-                point.setAttribute('cx', corner.x);
-                point.setAttribute('cy', corner.y);
-                point.setAttribute('r', '0.005');  // Rayon de 0.005 pour un diamètre de 0.01
-                point.setAttribute('fill', 'none');
-                point.setAttribute('stroke', 'black');
-                point.setAttribute('stroke-width', '0.5');
-                svg.appendChild(point);
+                // Récupérer le nom depuis l'input
+                const inputText = document.getElementById('text').value;
+                // Nettoyer le texte pour en faire un nom de fichier valide
+                const fileName = inputText.replace(/[^a-zA-Z0-9 ]/g, '_');
+                
+                // Créer la version optimisée du SVG
+                const optimizedSvg = createOptimizedSVG(svg);
+                
+                const svgData = new XMLSerializer().serializeToString(optimizedSvg);
+                const svgBlob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
+                
+                // Créer et déclencher le téléchargement avec le nom personnalisé
+                const downloadLink = document.createElement("a");
+                downloadLink.href = URL.createObjectURL(svgBlob);
+                downloadLink.download = `${fileName}.svg`;
+                
+                document.body.appendChild(downloadLink);
+                downloadLink.click();
+                document.body.removeChild(downloadLink);
+                URL.revokeObjectURL(downloadLink.href);
             });
             
-            // Créer les points de base de la courbe
-            const points = [];
-            for (let i = 0; i < state.length; i += 2) {
-                points.push({
-                    x: margin + (state[i] / 255) * width,
-                    y: margin /2 + (state[i + 1] / 255) * height
-                });
-            }
-            
-            const tension = .4;
-            
-            // Fonction pour calculer les points de contrôle
-            function getControlPoints(p0, p1, p2) {
-                const d01 = Math.sqrt(Math.pow(p1.x - p0.x, 2) + Math.pow(p1.y - p0.y, 2));
-                const d12 = Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
-                
-                const fa = tension * d01 / (d01 + d12);
-                const fb = tension * d12 / (d01 + d12);
-                
-                const cp1x = p1.x - fa * (p2.x - p0.x);
-                const cp1y = p1.y - fa * (p2.y - p0.y);
-                const cp2x = p1.x + fb * (p2.x - p0.x);
-                const cp2y = p1.y + fb * (p2.y - p0.y);
-                
-                return [{x: cp1x, y: cp1y}, {x: cp2x, y: cp2y}];
-            }
-            
-            // Fonction pour calculer un point sur une courbe de Bézier cubique
-            function getBezierPoint(t, p0, cp1, cp2, p1) {
-                const t2 = t * t;
-                const t3 = t2 * t;
-                const mt = 1 - t;
-                const mt2 = mt * mt;
-                const mt3 = mt2 * mt;
-                
-                return {
-                    x: mt3 * p0.x + 3 * mt2 * t * cp1.x + 3 * mt * t2 * cp2.x + t3 * p1.x,
-                    y: mt3 * p0.y + 3 * mt2 * t * cp1.y + 3 * mt * t2 * cp2.y + t3 * p1.y
-                };
-            }
+            canvasElement.appendChild(svg);
+        }
 
-            // Fonction pour estimer la longueur d'un segment de Bézier
-            function estimateSegmentLength(p1, cp2, nextCp1, p2, steps = 10) {
-                let length = 0;
-                let prevPoint = p1;
+        const svg = canvasElement.querySelector('svg');
+        while (svg.firstChild) {
+            svg.removeChild(svg.firstChild);
+        }
+        
+        const margin = 20;
+        const width = 148 - (2 * margin);
+        const height = 210 - (2 * margin);
+
+        // Ajouter les points aux coins
+        const corners = [
+            {x: 0, y: 0},                    // Coin haut gauche
+            {x: 148, y: 0},              // Coin haut droit
+            {x: 148 , y: 210 },        // Coin bas droit
+            {x: 0, y: 210}               // Coin bas gauche
+        ];
+
+        corners.forEach(corner => {
+            const point = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            point.setAttribute('cx', corner.x);
+            point.setAttribute('cy', corner.y);
+            point.setAttribute('r', '0.005');  // Rayon de 0.005 pour un diamètre de 0.01
+            point.setAttribute('fill', 'none');
+            point.setAttribute('stroke', 'black');
+            point.setAttribute('stroke-width', '0.5');
+            svg.appendChild(point);
+        });
+        
+        // Ajouter le texte avec la police Hershey au SVG
+        if (state && state.length > 0) {
+            let text = toHexString(state);
+            const textGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+            
+            // Facteur d'échelle à appliquer directement aux coordonnées
+            const scaleFactor = 0.68;
+            
+            let xOffset = 0;
+            let yOffset = 0;
+            const spacingMultiplier = 1.68;
+            const groupSpacing = 15 * spacingMultiplier;
+            const lineHeight = 40;
+            const charsPerLine = 8;
+            
+            // Fonction pour transformer les coordonnées d'un path SVG
+            function transformPathData(pathData, scale, translateX, translateY) {
+                // Regex pour matcher les coordonnées dans un path SVG
+                // Cette regex identifie les commandes SVG et les nombres qui suivent
+                const regex = /([MLHVCSQTAZmlhvcsqtaz])|([-+]?[0-9]*\.?[0-9]+)/g;
+                let matches;
+                let result = '';
+                let command = null;
+                let index = 0;
                 
-                for (let i = 1; i <= steps; i++) {
-                    const t = i / steps;
-                    const point = getBezierPoint(t, p1, cp2, nextCp1, p2);
-                    length += Math.sqrt(
-                        Math.pow(point.x - prevPoint.x, 2) + 
-                        Math.pow(point.y - prevPoint.y, 2)
-                    );
-                    prevPoint = point;
+                // Parcourir tous les éléments du path
+                while ((matches = regex.exec(pathData)) !== null) {
+                    if (matches[1]) {
+                        // C'est une commande
+                        command = matches[1];
+                        result += command;
+                    } else if (matches[2]) {
+                        // C'est une coordonnée
+                        const num = parseFloat(matches[2]);
+                        
+                        // Appliquer la transformation selon la position
+                        if (command && (command.toLowerCase() === 'm' || command.toLowerCase() === 'l' || 
+                                    command.toLowerCase() === 'c' || command.toLowerCase() === 's' || 
+                                    command.toLowerCase() === 'q' || command.toLowerCase() === 't' || 
+                                    command.toLowerCase() === 'a')) {
+                            // Pour ces commandes, les coordonnées sont x,y alternées
+                            if (index % 2 === 0) {
+                                // x coordinate
+                                result += (num * scale + translateX) + ' ';
+                            } else {
+                                // y coordinate
+                                result += (num * scale + translateY) + ' ';
+                            }
+                            index++;
+                        } else if (command === 'h' || command === 'H') {
+                            // Commande horizontale (x seulement)
+                            result += (num * scale + translateX) + ' ';
+                        } else if (command === 'v' || command === 'V') {
+                            // Commande verticale (y seulement)
+                            result += (num * scale + translateY) + ' ';
+                        } else {
+                            // Autres valeurs (comme les paramètres d'arc)
+                            result += (num * scale) + ' ';
+                        }
+                    }
                 }
                 
-                return length;
+                return result;
             }
             
-            let curvePoints = [];
-            const basePointsPerUnit = 0.5; // Paramètre pour le hachage des carrés
+            // Parcourir chaque caractère du texte
+            for (let i = 0; i < text.length; i++) {
+                // Logique pour les sauts de ligne et espacements
+                if (i > 0 && i % charsPerLine === 0) {
+                    xOffset = 0;
+                    yOffset += lineHeight;
+                }
+                
+                if (i > 0 && i % 2 === 0 && i % charsPerLine !== 0) {
+                    xOffset += groupSpacing;
+                }
+                
+                const char = text.charCodeAt(i);
+                const charData = getCharByAscii(char);
+                
+                if (charData) {
+                    // Transformer les coordonnées du path
+                    const transformedPathData = transformPathData(
+                        charData.d, 
+                        scaleFactor, 
+                        xOffset * scaleFactor, 
+                        yOffset * scaleFactor
+                    );
+                    
+                    // Créer un élément path avec les coordonnées transformées
+                    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                    path.setAttribute("d", transformedPathData);
+                    path.setAttribute("stroke", "black");
+                    path.setAttribute("stroke-width", "1");
+                    path.setAttribute("fill", "none");
+                    textGroup.appendChild(path);
+                    
+                    // Calculer la position pour le prochain caractère
+                    xOffset += (charData.o * spacingMultiplier);
+                } else if (char === 32) {
+                    xOffset += (5 * spacingMultiplier);
+                }
+            }
             
-            for (let i = 0; i < points.length - 1; i++) {
-                const p0 = points[Math.max(0, i - 1)];
-                const p1 = points[i];
-                const p2 = points[i + 1];
-                const p3 = points[Math.min(points.length - 1, i + 2)];
+            svg.appendChild(textGroup);
+        }
+
+
+        // Créer les points de base de la courbe
+        const points = [];
+        for (let i = 0; i < state.length; i += 2) {
+            points.push({
+                x: margin + (state[i] / 255) * width,
+                y: margin + (state[i + 1] / 255) * height
+            });
+        }
+        
+        const tension = .4;
+        
+        // Fonction pour calculer les points de contrôle
+        function getControlPoints(p0, p1, p2) {
+            const d01 = Math.sqrt(Math.pow(p1.x - p0.x, 2) + Math.pow(p1.y - p0.y, 2));
+            const d12 = Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
+            
+            const fa = tension * d01 / (d01 + d12);
+            const fb = tension * d12 / (d01 + d12);
+            
+            const cp1x = p1.x - fa * (p2.x - p0.x);
+            const cp1y = p1.y - fa * (p2.y - p0.y);
+            const cp2x = p1.x + fb * (p2.x - p0.x);
+            const cp2y = p1.y + fb * (p2.y - p0.y);
+            
+            return [{x: cp1x, y: cp1y}, {x: cp2x, y: cp2y}];
+        }
+        
+        // Fonction pour calculer un point sur une courbe de Bézier cubique
+        function getBezierPoint(t, p0, cp1, cp2, p1) {
+            const t2 = t * t;
+            const t3 = t2 * t;
+            const mt = 1 - t;
+            const mt2 = mt * mt;
+            const mt3 = mt2 * mt;
+            
+            return {
+                x: mt3 * p0.x + 3 * mt2 * t * cp1.x + 3 * mt * t2 * cp2.x + t3 * p1.x,
+                y: mt3 * p0.y + 3 * mt2 * t * cp1.y + 3 * mt * t2 * cp2.y + t3 * p1.y
+            };
+        }
+
+        // Fonction pour estimer la longueur d'un segment de Bézier
+        function estimateSegmentLength(p1, cp2, nextCp1, p2, steps = 10) {
+            let length = 0;
+            let prevPoint = p1;
+            
+            for (let i = 1; i <= steps; i++) {
+                const t = i / steps;
+                const point = getBezierPoint(t, p1, cp2, nextCp1, p2);
+                length += Math.sqrt(
+                    Math.pow(point.x - prevPoint.x, 2) + 
+                    Math.pow(point.y - prevPoint.y, 2)
+                );
+                prevPoint = point;
+            }
+            
+            return length;
+        }
+        
+        // Génération des points de la courbe complète en une seule fois pour assurer la continuité
+        let curvePoints = [];
+        const basePointsPerUnit = 0.1; // Paramètre pour la densité des points
+        
+        // Première étape : collecter tous les segments et leurs informations
+        const segments = [];
+        for (let i = 0; i < points.length - 1; i++) {
+            const p0 = points[Math.max(0, i - 1)];
+            const p1 = points[i];
+            const p2 = points[i + 1];
+            const p3 = points[Math.min(points.length - 1, i + 2)];
+            
+            const [cp1, cp2] = getControlPoints(p0, p1, p2);
+            const [nextCp1, nextCp2] = getControlPoints(p1, p2, p3);
+            
+            // Calculer la longueur du segment
+            const segmentLength = estimateSegmentLength(p1, cp2, nextCp1, p2, 20); // Plus de subdivisions
+            
+            // Ajuster le nombre de points en fonction de la longueur
+            const numPoints = Math.max(1, Math.round(segmentLength * (basePointsPerUnit * 8)));
+            
+            segments.push({
+                p1, p2, cp2, nextCp1, numPoints
+            });
+        }
+        
+        // Deuxième étape : générer les points pour tous les segments
+        segments.forEach((segment, segmentIndex) => {
+            // Pour chaque segment, générer les points
+            for (let j = 0; j <= segment.numPoints; j++) { // Note: <= au lieu de < pour inclure le point final
+                const t = j / segment.numPoints;
+                const point = getBezierPoint(t, segment.p1, segment.cp2, segment.nextCp1, segment.p2);
                 
-                const [cp1, cp2] = getControlPoints(p0, p1, p2);
-                const [nextCp1, nextCp2] = getControlPoints(p1, p2, p3);
-                
-                // Calculer la longueur du segment
-                const segmentLength = estimateSegmentLength(p1, cp2, nextCp1, p2);
-                
-                // Ajuster le nombre de points en fonction de la longueur
-                const numPoints = Math.max(5, Math.round(segmentLength * basePointsPerUnit));
-                
-                for (let j = 0; j < numPoints; j++) {
-                    const t = j / numPoints;
-                    const point = getBezierPoint(t, p1, cp2, nextCp1, p2);
+                // Pour éviter les doublons aux jonctions, sauf pour le premier segment
+                if (segmentIndex === 0 || j > 0) {
                     curvePoints.push(point);
                 }
             }
-            
-            // Dessiner les cercles et les caches dans l'ordre
-            curvePoints.forEach((point, index) => {
-                const radius = point.y/point.x*5;
-
-                // Dessiner le premier carré
-                if (index === 0) {
-                    const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
-                    const size = radius+2;
-                    const spacing = .333; // Espacement entre les lignes
-                    
-                    // Calculer le nombre de lignes nécessaires
-                    const numLines = Math.floor(size * 2 / spacing)+1;
-                    
-                    // Créer les lignes horizontales
-                    for(let i = 0; i < numLines; i++) {
-                        const y = point.y - size + (i * spacing);
-                        
-                        // Si la ligne est dans la zone du cercle
-                        const dy = Math.abs(y - point.y);
-                        if(dy > radius) {
-                            // Ligne complète car hors du cercle
-                            const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-                            line.setAttribute('x1', point.x - size);
-                            line.setAttribute('y1', y);
-                            line.setAttribute('x2', point.x + size);
-                            line.setAttribute('y2', y);
-                            line.setAttribute('stroke', 'black');
-                            line.setAttribute('stroke-width', '0.5');
-                            group.appendChild(line);
-                        } else {
-                            // Deux segments de ligne de part et d'autre du cercle
-                            const dx = Math.sqrt(radius * radius - dy * dy);
-                            
-                            // Segment gauche
-                            const leftLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
-                            leftLine.setAttribute('x1', point.x - size);
-                            leftLine.setAttribute('y1', y);
-                            leftLine.setAttribute('x2', point.x - dx);
-                            leftLine.setAttribute('y2', y);
-                            leftLine.setAttribute('stroke', 'black');
-                            leftLine.setAttribute('stroke-width', '0.5');
-                            group.appendChild(leftLine);
-                            
-                            // Segment droit
-                            const rightLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
-                            rightLine.setAttribute('x1', point.x + dx);
-                            rightLine.setAttribute('y1', y);
-                            rightLine.setAttribute('x2', point.x + size);
-                            rightLine.setAttribute('y2', y);
-                            rightLine.setAttribute('stroke', 'black');
-                            rightLine.setAttribute('stroke-width', '0.5');
-                            group.appendChild(rightLine);
-                        }
-                    }
-                    
-                    svg.appendChild(group);
-                }
-
-                // Dessiner les cercles
-                const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-                circle.setAttribute('cx', point.x);
-                circle.setAttribute('cy', point.y);
-                circle.setAttribute('r', radius);
-                circle.setAttribute('fill', 'white');
-                circle.setAttribute('stroke', 'black');
-                circle.setAttribute('stroke-width', '0.5');
-                svg.appendChild(circle);
-                
-                // Dessiner le dernier carré et les cercles intérieurs
-                if (index === curvePoints.length - 1) {
-                    const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
-                    const size = radius+2;
-                    const spacing = .333; // Espacement entre les lignes
-                    
-                    // Calculer le nombre de lignes nécessaires
-                    const numLines = Math.floor(size * 2 / spacing)+1;
-                    
-                    // Créer les lignes horizontales
-                    for(let i = 0; i < numLines; i++) {
-                        const y = point.y - size + (i * spacing);
-                        
-                        // Si la ligne est dans la zone du cercle
-                        const dy = Math.abs(y - point.y);
-                        if(dy > radius) {
-                            // Ligne complète car hors du cercle
-                            const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-                            line.setAttribute('x1', point.x - size);
-                            line.setAttribute('y1', y);
-                            line.setAttribute('x2', point.x + size);
-                            line.setAttribute('y2', y);
-                            line.setAttribute('stroke', 'black');
-                            line.setAttribute('stroke-width', '0.5');
-                            group.appendChild(line);
-                        } else {
-                            // Deux segments de ligne de part et d'autre du cercle
-                            const dx = Math.sqrt(radius * radius - dy * dy);
-                            
-                            // Segment gauche
-                            const leftLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
-                            leftLine.setAttribute('x1', point.x - size);
-                            leftLine.setAttribute('y1', y);
-                            leftLine.setAttribute('x2', point.x - dx);
-                            leftLine.setAttribute('y2', y);
-                            leftLine.setAttribute('stroke', 'black');
-                            leftLine.setAttribute('stroke-width', '0.5');
-                            group.appendChild(leftLine);
-                            
-                            // Segment droit
-                            const rightLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
-                            rightLine.setAttribute('x1', point.x + dx);
-                            rightLine.setAttribute('y1', y);
-                            rightLine.setAttribute('x2', point.x + size);
-                            rightLine.setAttribute('y2', y);
-                            rightLine.setAttribute('stroke', 'black');
-                            rightLine.setAttribute('stroke-width', '0.5');
-                            group.appendChild(rightLine);
-                        }
-                    }
-                    
-                    svg.appendChild(group);
-
-                    // Dessiner les derniers cercles intérieurs
-                    for (let i = 0; i < 20; i++) {
-                        if (index - i >= 0) {
-                            const pt = curvePoints[curvePoints.length - 1 - i];
-                            const rad = pt.y/pt.x*5;
-                            
-                            // Générer des points tout autour du cercle
-                            const points = [];
-                            const numPoints = 64;
-                            
-                            // Stocker tous les points avec leur angle
-                            for (let j = 0; j < numPoints; j++) {
-                                const angle = (j * 2 * Math.PI) / numPoints;
-                                const x = pt.x + Math.cos(angle) * rad;
-                                const y = pt.y + Math.sin(angle) * rad;
-                                
-                                if (x >= point.x - size && 
-                                    x <= point.x + size && 
-                                    y >= point.y - size && 
-                                    y <= point.y + size) {
-                                    points.push({x, y, angle});
-                                }
-                            }
-                            
-                            if (points.length > 2) {
-                                // Ajouter le premier point à la fin avec angle 2π
-                                points.push({
-                                    x: points[0].x,
-                                    y: points[0].y,
-                                    angle: points[0].angle + 2 * Math.PI
-                                });
-
-                                // Trier les points par angle pour s'assurer de l'ordre
-                                points.sort((a, b) => a.angle - b.angle);
-                                
-                                // Trouver les "trous" dans la séquence d'angles
-                                const segments = [];
-                                let currentSegment = [points[0]];
-                                
-                                for (let j = 1; j < points.length; j++) {
-                                    const angleDiff = points[j].angle - points[j-1].angle;
-                                    if (angleDiff > (3 * Math.PI / numPoints)) { // Si l'écart est trop grand
-                                        if (currentSegment.length > 2) {
-                                            segments.push(currentSegment);
-                                        }
-                                        currentSegment = [];
-                                    }
-                                    currentSegment.push(points[j]);
-                                }
-                                if (currentSegment.length > 2) {
-                                    segments.push(currentSegment);
-                                }
-                                
-                                // Créer un path pour chaque segment continu
-                                segments.forEach(segment => {
-                                    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-                                    let d = `M ${segment[0].x},${segment[0].y}`;
-                                    
-                                    for (let j = 1; j < segment.length; j++) {
-                                        d += ` L ${segment[j].x},${segment[j].y}`;
-                                    }
-                                    
-                                    path.setAttribute('d', d);
-                                    path.setAttribute('fill', 'none');
-                                    path.setAttribute('stroke', 'black');
-                                    path.setAttribute('stroke-width', '0.5');
-                                    svg.appendChild(path);
-                                });
-                            }
-                        }
-                    }
-                }
-            });
-            
-            // Ajouter le texte avec la police Hershey au SVG à la position (0,0) avec scale 0.5
-            if (text && text.length > 0) {
-                // Créer un groupe pour le premier texte avec le positionnement et l'échelle demandés
-                const textGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
-                textGroup.setAttribute("transform", "translate(0, 0) scale(0.28)");
-                
-                let xOffset = 0;
-                const spacingMultiplier = 1.68; // Espacement standard entre les caractères
-                
-                // Parcourir chaque caractère du premier texte
-                for (let i = 0; i < text.length; i++) {
-                    const char = text.charCodeAt(i);
-                    const charData = getCharByAscii(char);
-                    
-                    if (charData) {
-                        // Créer un élément path pour le caractère
-                        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-                        path.setAttribute("d", charData.d);
-                        path.setAttribute("transform", `translate(${xOffset}, 0)`);
-                        path.setAttribute("stroke", "black");
-                        path.setAttribute("stroke-width", "1");
-                        path.setAttribute("fill", "none");
-                        textGroup.appendChild(path);
-                        
-                        // Calculer la position pour le prochain caractère
-                        xOffset += (charData.o * spacingMultiplier);
-                    } else if (char === 32) { // Espace
-                        // Utiliser une largeur standard pour l'espace
-                        xOffset += (5 * spacingMultiplier);
-                    }
-                }
-                
-                // Ajouter le premier groupe de texte au SVG
-                svg.appendChild(textGroup);
-                // Créer un groupe pour le deuxième texte avec le positionnement et l'échelle demandés
-                const textGroup2 = document.createElementNS("http://www.w3.org/2000/svg", "g");
-                textGroup2.setAttribute("transform", "translate(-1, 202) scale(0.28)");
-                
-                // Réinitialiser xOffset pour le deuxième texte
-                xOffset = 0;
-                            
-                // Parcourir chaque caractère du deuxième texte
-                let test = toHexString(state);
-                for (let i = 0; i < test.length; i++) {
-                    const char = test.charCodeAt(i);
-                    const charData = getCharByAscii(char);
-                    
-                    if (charData) {
-                        // Créer un élément path pour le caractère
-                        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-                        path.setAttribute("d", charData.d);
-                        path.setAttribute("transform", `translate(${xOffset}, 0)`);
-                        path.setAttribute("stroke", "black");
-                        path.setAttribute("stroke-width", "1");
-                        path.setAttribute("fill", "none");
-                        textGroup2.appendChild(path); // Ajouter au textGroup2 et non au textGroup
-                        
-                        // Calculer la position pour le prochain caractère
-                        xOffset += (charData.o * spacingMultiplier);
-                    } else if (char === 32) { // Espace
-                        // Utiliser une largeur standard pour l'espace
-                        xOffset += (5 * spacingMultiplier);
-                    }
-                }
-                
-                // Ajouter le deuxième groupe de texte au SVG
-                svg.appendChild(textGroup2);
-            }
-        };
+        });
         
+        // Dessiner les cercles et les caches dans l'ordre
+        curvePoints.forEach((point, index) => {
+            const centerX = 148 / 2;
+            const centerY = 210 / 2;
+            const distanceToCenter = Math.sqrt(Math.pow(point.x - centerX, 2) + Math.pow(point.y - centerY, 2));
+            const radius = 2 - (distanceToCenter / Math.sqrt(Math.pow(148/2, 2) + Math.pow(210/2, 2)) * -20);
+
+            // Dessiner le premier carré
+            if (index === 0) {
+                const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+                const size = radius+2;
+                const spacing = .333; // Espacement entre les lignes
+                
+                // Calculer le nombre de lignes nécessaires
+                const numLines = Math.floor(size * 2 / spacing)+1;
+                
+                // Créer les lignes horizontales
+                for(let i = 0; i < numLines; i++) {
+                    const y = point.y - size + (i * spacing);
+                    
+                    // Si la ligne est dans la zone du cercle
+                    const dy = Math.abs(y - point.y);
+                    if(dy > radius) {
+                        // Ligne complète car hors du cercle
+                        const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                        line.setAttribute('x1', point.x - size);
+                        line.setAttribute('y1', y);
+                        line.setAttribute('x2', point.x + size);
+                        line.setAttribute('y2', y);
+                        line.setAttribute('stroke', 'black');
+                        line.setAttribute('stroke-width', '0.5');
+                        group.appendChild(line);
+                    } else {
+                        // Deux segments de ligne de part et d'autre du cercle
+                        const dx = Math.sqrt(radius * radius - dy * dy);
+                        
+                        // Segment gauche
+                        const leftLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                        leftLine.setAttribute('x1', point.x - size);
+                        leftLine.setAttribute('y1', y);
+                        leftLine.setAttribute('x2', point.x - dx);
+                        leftLine.setAttribute('y2', y);
+                        leftLine.setAttribute('stroke', 'black');
+                        leftLine.setAttribute('stroke-width', '0.5');
+                        group.appendChild(leftLine);
+                        
+                        // Segment droit
+                        const rightLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                        rightLine.setAttribute('x1', point.x + dx);
+                        rightLine.setAttribute('y1', y);
+                        rightLine.setAttribute('x2', point.x + size);
+                        rightLine.setAttribute('y2', y);
+                        rightLine.setAttribute('stroke', 'black');
+                        rightLine.setAttribute('stroke-width', '0.5');
+                        group.appendChild(rightLine);
+                    }
+                }
+                
+                svg.appendChild(group);
+            }
+
+            // Dessiner les cercles
+            const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            circle.setAttribute('cx', point.x);
+            circle.setAttribute('cy', point.y);
+            circle.setAttribute('r', radius);
+            circle.setAttribute('fill', 'white');
+            circle.setAttribute('stroke', 'black');
+            circle.setAttribute('stroke-width', '0.5');
+            svg.appendChild(circle);
+            
+            // Dessiner le dernier carré et les cercles intérieurs
+            if (index === curvePoints.length - 1) {
+                const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+                const size = radius+2;
+                const spacing = .333; // Espacement entre les lignes
+                
+                // Calculer le nombre de lignes nécessaires
+                const numLines = Math.floor(size * 2 / spacing)+1;
+                
+                // Créer les lignes horizontales
+                for(let i = 0; i < numLines; i++) {
+                    const y = point.y - size + (i * spacing);
+                    
+                    // Si la ligne est dans la zone du cercle
+                    const dy = Math.abs(y - point.y);
+                    if(dy > radius) {
+                        // Ligne complète car hors du cercle
+                        const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                        line.setAttribute('x1', point.x - size);
+                        line.setAttribute('y1', y);
+                        line.setAttribute('x2', point.x + size);
+                        line.setAttribute('y2', y);
+                        line.setAttribute('stroke', 'black');
+                        line.setAttribute('stroke-width', '0.5');
+                        group.appendChild(line);
+                    } else {
+                        // Deux segments de ligne de part et d'autre du cercle
+                        const dx = Math.sqrt(radius * radius - dy * dy);
+                        
+                        // Segment gauche
+                        const leftLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                        leftLine.setAttribute('x1', point.x - size);
+                        leftLine.setAttribute('y1', y);
+                        leftLine.setAttribute('x2', point.x - dx);
+                        leftLine.setAttribute('y2', y);
+                        leftLine.setAttribute('stroke', 'black');
+                        leftLine.setAttribute('stroke-width', '0.5');
+                        group.appendChild(leftLine);
+                        
+                        // Segment droit
+                        const rightLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                        rightLine.setAttribute('x1', point.x + dx);
+                        rightLine.setAttribute('y1', y);
+                        rightLine.setAttribute('x2', point.x + size);
+                        rightLine.setAttribute('y2', y);
+                        rightLine.setAttribute('stroke', 'black');
+                        rightLine.setAttribute('stroke-width', '0.5');
+                        group.appendChild(rightLine);
+                    }
+                }
+                
+                svg.appendChild(group);
+
+
+                // Dessiner les derniers cercles intérieurs
+                for (let i = 0; i < 20; i++) {
+                    if (index - i >= 0) {
+                        const pt = curvePoints[curvePoints.length - 1 - i];
+                        const centerX = 148 / 2;
+                        const centerY = 210 / 2;
+                        const distanceToCenter = Math.sqrt(Math.pow(pt.x - centerX, 2) + Math.pow(pt.y - centerY, 2));
+                        const rad = 2 - (distanceToCenter / Math.sqrt(Math.pow(148/2, 2) + Math.pow(210/2, 2)) * -20);
+                        
+                        // Générer des points tout autour du cercle
+                        const points = [];
+                        const numPoints = 64;
+                        
+                        // Stocker tous les points avec leur angle
+                        for (let j = 0; j < numPoints; j++) {
+                            const angle = (j * 2 * Math.PI) / numPoints;
+                            const x = pt.x + Math.cos(angle) * rad;
+                            const y = pt.y + Math.sin(angle) * rad;
+                            
+                            if (x >= point.x - size && 
+                                x <= point.x + size && 
+                                y >= point.y - size && 
+                                y <= point.y + size) {
+                                points.push({x, y, angle});
+                            }
+                        }
+                        
+                        if (points.length > 2) {
+                            // Ajouter le premier point à la fin avec angle 2π
+                            points.push({
+                                x: points[0].x,
+                                y: points[0].y,
+                                angle: points[0].angle + 2 * Math.PI
+                            });
+
+                            // Trier les points par angle pour s'assurer de l'ordre
+                            points.sort((a, b) => a.angle - b.angle);
+                            
+                            // Trouver les "trous" dans la séquence d'angles
+                            const segments = [];
+                            let currentSegment = [points[0]];
+                            
+                            for (let j = 1; j < points.length; j++) {
+                                const angleDiff = points[j].angle - points[j-1].angle;
+                                if (angleDiff > (3 * Math.PI / numPoints)) { // Si l'écart est trop grand
+                                    if (currentSegment.length > 2) {
+                                        segments.push(currentSegment);
+                                    }
+                                    currentSegment = [];
+                                }
+                                currentSegment.push(points[j]);
+                            }
+                            if (currentSegment.length > 2) {
+                                segments.push(currentSegment);
+                            }
+                            
+                            // Créer un path pour chaque segment continu
+                            segments.forEach(segment => {
+                                const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                                let d = `M ${segment[0].x},${segment[0].y}`;
+                                
+                                for (let j = 1; j < segment.length; j++) {
+                                    d += ` L ${segment[j].x},${segment[j].y}`;
+                                }
+                                
+                                path.setAttribute('d', d);
+                                path.setAttribute('fill', 'none');
+                                path.setAttribute('stroke', 'black');
+                                path.setAttribute('stroke-width', '0.5');
+                                svg.appendChild(path);
+                            });
+                        }
+                    }
+                }
+            }
+        });
+
+       }
+
         function animateSVG(svg) {
             const style = document.createElementNS("http://www.w3.org/2000/svg", "style");
             style.textContent = `
@@ -1196,7 +1255,7 @@
             elements.forEach(element => {
                 element.style.opacity = "0";
                 element.style.animation = `appear 0.5s linear ${delay}s forwards`;
-                delay += 0.03;
+                delay += 0.02;
             });
         }
 
@@ -1205,7 +1264,23 @@
             
             // Générer le SVG une seule fois avec le state final
             canvasElement.textContent = '';
-            visualizeState(finalState);
+            // let test = [55, 3, 202, 29, 37, 4, 173, 125, 141, 214, 151, 229, 182, 224, 74, 189];
+            function getRandomValuesWithBetterDistribution(count, max) {
+                // Créer un tableau avec toutes les valeurs possibles
+                const allValues = Array.from({ length: max }, (_, i) => i);
+                
+                // Mélanger le tableau (algorithme de Fisher-Yates)
+                for (let i = allValues.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [allValues[i], allValues[j]] = [allValues[j], allValues[i]];
+                }
+                
+                // Retourner les 'count' premiers éléments
+                return allValues.slice(0, count);
+            }
+            const betterRandomValues = getRandomValuesWithBetterDistribution(32, 257);
+
+            visualizeState(betterRandomValues);
             const svg = canvasElement.querySelector('svg');
             if (svg) {
                 svg.classList.add('animate-ready');
@@ -1221,7 +1296,7 @@
                 aesElement.textContent = state.message;
                 
                 currentIndex++;
-                setTimeout(displayNextState, 300);
+                setTimeout(displayNextState, 200);
             }
 
             // Démarrer l'animation des textes
@@ -1236,6 +1311,33 @@
             svg.setAttribute("height", originalSvg.getAttribute("height"));
             svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
             svg.setAttribute("fill", "#f0f0f0");
+
+            // NOUVEAU CODE: Copier les groupes de texte du SVG original
+            originalSvg.querySelectorAll('g').forEach(group => {
+                // Vérifier si c'est un groupe de texte (contient des paths mais pas de lignes)
+                const containsPaths = group.querySelectorAll('path').length > 0;
+                const containsLines = group.querySelectorAll('line').length > 0;
+                
+                // Si c'est un groupe de texte ou tout autre groupe qui n'est pas déjà traité
+                if (containsPaths && !containsLines) {
+                    // Clone le groupe avec tous ses attributs
+                    const newGroup = group.cloneNode(true);
+                    
+                    // Parcourir tous les éléments enfants du nouveau groupe
+                    Array.from(newGroup.children).forEach(child => {
+                        // Supprimer les attributs spécifiques si présents
+                        const attributesToRemove = ["style"];
+                        attributesToRemove.forEach(attr => {
+                            if (child.hasAttribute(attr)) {
+                                child.removeAttribute(attr);
+                            }
+                        });
+                    });
+                    
+                    svg.appendChild(newGroup);
+                }
+            });
+
 
             // Récupérer les points de la courbe depuis le SVG original
             let curvePoints = [];
@@ -1593,32 +1695,6 @@ if (index === 0) {
                             }
                         }
                     }
-                }
-            });
-
-            // NOUVEAU CODE: Copier les groupes de texte du SVG original
-            originalSvg.querySelectorAll('g').forEach(group => {
-                // Vérifier si c'est un groupe de texte (contient des paths mais pas de lignes)
-                const containsPaths = group.querySelectorAll('path').length > 0;
-                const containsLines = group.querySelectorAll('line').length > 0;
-                
-                // Si c'est un groupe de texte ou tout autre groupe qui n'est pas déjà traité
-                if (containsPaths && !containsLines) {
-                    // Clone le groupe avec tous ses attributs
-                    const newGroup = group.cloneNode(true);
-                    
-                    // Parcourir tous les éléments enfants du nouveau groupe
-                    Array.from(newGroup.children).forEach(child => {
-                        // Supprimer les attributs spécifiques si présents
-                        const attributesToRemove = ["style"];
-                        attributesToRemove.forEach(attr => {
-                            if (child.hasAttribute(attr)) {
-                                child.removeAttribute(attr);
-                            }
-                        });
-                    });
-                    
-                    svg.appendChild(newGroup);
                 }
             });
 
