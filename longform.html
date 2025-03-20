@@ -34,12 +34,17 @@
             left: 50%;
             transform: translate(-50%, -50%);
             z-index: 2;
-            background-color: rgba(75, 76, 96, 0.62);
+            /* background-color: rgba(75, 76, 96, 0.62); */
             padding: 10px;
             border-radius: 8px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            /* box-shadow: 0 0 20px rgba(0, 0, 0, 0.5); */
         }
         .algo {
+            display: flex;
+            justify-content: center;
+        }
+        .drawing {
+            margin-top: -1rem;
             display: flex;
             justify-content: center;
         }
@@ -67,7 +72,7 @@
             text-align: center;
             padding-top: 20px;
             margin:  1rem;
-            width: 337px;
+            width: 340px;
             height: 440px;
             background-color: #f0f0f0;
             border-radius: 8px;
@@ -119,7 +124,7 @@
             </div>
             <div class="col">
                 <div style="display: flex; width: 100%;">
-                    <input type="text" class="text-input" id="text" placeholder="Something to encrypt" value="Stid">
+                    <input type="text" class="text-input" id="text" placeholder="Something to encrypt" value="STid">
                     <button class="encrypt-button" id="encrypt-btn">AES&nbsp;128</button>
                 </div>
                 <div class="long-tile">
@@ -131,7 +136,10 @@
                 </div>
             </div>
         </div>
-        <div class="algo">
+        <div class="drawing">
+            <div class="col">
+                <div class="tile">svg</div>
+            </div>
 
             <div class="canvas" id="canvas"></div>
         </div>
@@ -846,7 +854,7 @@
                 // Facteur d'échelle à appliquer directement aux coordonnées
                 const scaleFactor = 0.68;
                 
-                let xOffset = 0;
+                let xOffset = 3;
                 let yOffset = 0;
                 const spacingMultiplier = 1.68;
                 const groupSpacing = 15 * spacingMultiplier;
@@ -907,7 +915,7 @@
                 for (let i = 0; i < text.length; i++) {
                     // Logique pour les sauts de ligne et espacements
                     if (i > 0 && i % charsPerLine === 0) {
-                        xOffset = 0;
+                        xOffset = 3;
                         yOffset += lineHeight;
                     }
                     
@@ -936,7 +944,9 @@
                         textGroup.appendChild(path);
                         
                         // Calculer la position pour le prochain caractère
-                        xOffset += (charData.o * spacingMultiplier);
+                        // xOffset += (charData.o * spacingMultiplier);
+                        xOffset += (10 * spacingMultiplier);
+
                     } else if (char === 32) {
                         xOffset += (5 * spacingMultiplier);
                     }
@@ -1055,8 +1065,8 @@
                 // Dessiner le premier carré
                 if (index === 0) {
                     const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
-                    const size = radius+2;
-                    const spacing = .038; // Espacement entre les lignes
+                    const size = radius + 1;
+                    const spacing = 1/8; // Espacement entre les lignes
                     
                     // Calculer le nombre de lignes nécessaires
                     const numLines = Math.floor(size * 2 / spacing)+1;
@@ -1120,8 +1130,8 @@
                 // Dessiner le dernier carré et les cercles intérieurs
                 if (index === curvePoints.length - 1) {
                     const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
-                    const size = radius+2;
-                    const spacing = .038; // Espacement entre les lignes
+                    const size = radius + 1;
+                    const spacing = 1/8; // Espacement entre les lignes
                     
                     // Calculer le nombre de lignes nécessaires
                     const numLines = Math.floor(size * 2 / spacing)+1;
@@ -1172,7 +1182,7 @@
 
 
                     // Dessiner les derniers cercles intérieurs
-                    for (let i = 0; i < 30; i++) {
+                    for (let i = 0; i < 60; i++) {
                         if (index - i >= 0) {
                             const pt = curvePoints[curvePoints.length - 1 - i];
                             const centerX = 148 / 2;
@@ -1364,9 +1374,9 @@
                 // Premier carré hachuré
                 if (index === 0) {
                     const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
-                    const size = radius + 2;
+                    const size = radius + 1;
                     // Utiliser un espacement qui est une fraction rationnelle exacte
-                    const spacing = 1/32; 
+                    const spacing = 1/8; 
                     const numLines = Math.floor(size * 2 / spacing) + 1;
                     
                     for(let i = 0; i < numLines; i++) {
@@ -1577,8 +1587,8 @@
                 if (index === curvePoints.length - 1) {
                     // Dessiner le dernier carré hachuré
                     const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
-                    const size = radius + 2;
-                    const spacing = .038;
+                    const size = radius + 1;
+                    const spacing = 1/8;
                     const numLines = Math.floor(size * 2 / spacing) + 1;
                     
                     for(let i = 0; i < numLines; i++) {
@@ -1619,7 +1629,7 @@
                     svg.appendChild(group);
 
                     // Dessiner les cercles tronqués dans le carré
-                    for (let i = 0; i < 30; i++) {
+                    for (let i = 0; i < 60; i++) {
                         if (index - i >= 0) {
                             const pt = curvePoints[curvePoints.length - 1 - i];
                             const rad = pt.radius;
@@ -1689,7 +1699,7 @@
                 }
             });
 
-            // Traiter les groupes de texte avec échantillonnage
+            // Traiter les groupes de texte avec duplication et échantillonnage
             originalSvg.querySelectorAll('g').forEach(group => {
                 // Vérifier si c'est un groupe de texte (contient des paths mais pas de lignes)
                 const containsPaths = group.querySelectorAll('path').length > 0;
@@ -1704,151 +1714,187 @@
                     Array.from(group.querySelectorAll('path')).forEach(originalPath => {
                         const pathData = originalPath.getAttribute('d');
                         
-                        // Analyser le chemin plus précisément
-                        const commands = pathData.match(/[MLHVCSQTAZmlhvcsqtaz][^MLHVCSQTAZmlhvcsqtaz]*/g) || [];
+                        // Créer des copies décalées du chemin dans les 4 directions
+                        const offset = 0.4; // Valeur de décalage en unités SVG (ajustez selon vos besoins)
+                        const offsets = [
+                            { dx: offset, dy: 0 },      // Droite
+                            // { dx: -offset, dy: 0 },     // Gauche
+                            { dx: 0, dy: offset },      // Bas
+                            // { dx: 0, dy: -offset },     // Haut
+                            { dx: 0, dy: 0 }            // Original (pas de décalage)
+                        ];
                         
-                        // Échantillonner les points du chemin à intervalles réguliers
-                        const sampleDistance = 0.2; // RÉDUIT: Échantillonnage plus dense
-                        const samples = [];
-                        let currentX = 0, currentY = 0;
-                        let lastMoveX = 0, lastMoveY = 0; // Pour la commande Z
-                        
-                        for (const cmdStr of commands) {
-                            const cmd = cmdStr.charAt(0);
-                            // Extraire tous les nombres du string de commande
-                            const allParams = cmdStr.slice(1).trim().split(/[\s,]+/).map(parseFloat);
+                        // Pour chaque décalage, créer une version du chemin
+                        for (const { dx, dy } of offsets) {
+                            // Analyser le chemin plus précisément
+                            const commands = pathData.match(/[MLHVCSQTAZmlhvcsqtaz][^MLHVCSQTAZmlhvcsqtaz]*/g) || [];
                             
-                            if (cmd === 'M') { // MoveTo absolu
-                                // Premier point = M
-                                currentX = allParams[0];
-                                currentY = allParams[1];
-                                lastMoveX = currentX;
-                                lastMoveY = currentY;
-                                samples.push({x: currentX, y: currentY, cmd: 'M'});
+                            // Échantillonner les points du chemin à intervalles réguliers
+                            const sampleDistance = 0.2; // Échantillonnage dense
+                            const samples = [];
+                            let currentX = 0, currentY = 0;
+                            let lastMoveX = 0, lastMoveY = 0; // Pour la commande Z
+                            
+                            for (const cmdStr of commands) {
+                                const cmd = cmdStr.charAt(0);
+                                // Extraire tous les nombres du string de commande
+                                const allParams = cmdStr.slice(1).trim().split(/[\s,]+/).map(parseFloat);
                                 
-                                // Points suivants = L implicites
-                                for (let i = 2; i < allParams.length; i += 2) {
-                                    const targetX = allParams[i];
-                                    const targetY = allParams[i + 1];
+                                if (cmd === 'M') { // MoveTo absolu
+                                    // Premier point = M
+                                    currentX = allParams[0] + dx;
+                                    currentY = allParams[1] + dy;
+                                    lastMoveX = currentX;
+                                    lastMoveY = currentY;
+                                    samples.push({x: currentX, y: currentY, cmd: 'M'});
                                     
-                                    // Échantillonner plus de points le long de la ligne
-                                    const dx = targetX - currentX;
-                                    const dy = targetY - currentY;
-                                    const distance = Math.sqrt(dx*dx + dy*dy);
+                                    // Points suivants = L implicites
+                                    for (let i = 2; i < allParams.length; i += 2) {
+                                        const targetX = allParams[i] + dx;
+                                        const targetY = allParams[i + 1] + dy;
+                                        
+                                        // Échantillonner plus de points le long de la ligne
+                                        const dX = targetX - currentX;
+                                        const dY = targetY - currentY;
+                                        const distance = Math.sqrt(dX*dX + dY*dY);
+                                        const numSamples = Math.max(1, Math.ceil(distance / sampleDistance));
+                                        
+                                        for (let j = 1; j <= numSamples; j++) {
+                                            const t = j / numSamples;
+                                            const x = currentX + dX * t;
+                                            const y = currentY + dY * t;
+                                            samples.push({x, y, cmd: 'L'});
+                                        }
+                                        
+                                        currentX = targetX;
+                                        currentY = targetY;
+                                    }
+                                } 
+                                else if (cmd === 'L') { // LineTo absolu
+                                    for (let i = 0; i < allParams.length; i += 2) {
+                                        const targetX = allParams[i] + dx;
+                                        const targetY = allParams[i + 1] + dy;
+                                        
+                                        // Échantillonner plus de points le long de la ligne
+                                        const dX = targetX - currentX;
+                                        const dY = targetY - currentY;
+                                        const distance = Math.sqrt(dX*dX + dY*dY);
+                                        const numSamples = Math.max(1, Math.ceil(distance / sampleDistance));
+                                        
+                                        for (let j = 1; j <= numSamples; j++) {
+                                            const t = j / numSamples;
+                                            const x = currentX + dX * t;
+                                            const y = currentY + dY * t;
+                                            samples.push({x, y, cmd: 'L'});
+                                        }
+                                        
+                                        currentX = targetX;
+                                        currentY = targetY;
+                                    }
+                                }
+                                else if (cmd === 'Z' || cmd === 'z') {
+                                    // Fermer le chemin - retour au dernier point M
+                                    const dX = lastMoveX - currentX;
+                                    const dY = lastMoveY - currentY;
+                                    const distance = Math.sqrt(dX*dX + dY*dY);
                                     const numSamples = Math.max(1, Math.ceil(distance / sampleDistance));
                                     
                                     for (let j = 1; j <= numSamples; j++) {
                                         const t = j / numSamples;
-                                        const x = currentX + dx * t;
-                                        const y = currentY + dy * t;
+                                        const x = currentX + dX * t;
+                                        const y = currentY + dY * t;
                                         samples.push({x, y, cmd: 'L'});
                                     }
                                     
-                                    currentX = targetX;
-                                    currentY = targetY;
+                                    currentX = lastMoveX;
+                                    currentY = lastMoveY;
+                                    samples.push({x: currentX, y: currentY, cmd: 'Z'});
                                 }
-                            } 
-                            else if (cmd === 'L') { // LineTo absolu
-                                for (let i = 0; i < allParams.length; i += 2) {
-                                    const targetX = allParams[i];
-                                    const targetY = allParams[i + 1];
-                                    
-                                    // Échantillonner plus de points le long de la ligne
-                                    const dx = targetX - currentX;
-                                    const dy = targetY - currentY;
-                                    const distance = Math.sqrt(dx*dx + dy*dy);
-                                    const numSamples = Math.max(1, Math.ceil(distance / sampleDistance));
-                                    
-                                    for (let j = 1; j <= numSamples; j++) {
-                                        const t = j / numSamples;
-                                        const x = currentX + dx * t;
-                                        const y = currentY + dy * t;
-                                        samples.push({x, y, cmd: 'L'});
-                                    }
-                                    
-                                    currentX = targetX;
-                                    currentY = targetY;
-                                }
+                                // Vous pourriez ajouter d'autres commandes ici (C, S, Q, T, A, etc.)
                             }
-                            // Ajouter d'autres commandes si nécessaire
-                        }
-                        
-                        // MODIFIÉ: Vérifier la visibilité avec une marge d'erreur
-                        const visibleSamples = [];
-                        const marginError = 0.1; // Petit tampon pour éviter les problèmes de précision
-                        
-                        for (const point of samples) {
-                            let isVisible = true;
                             
-                            for (const circleData of originalCircles) { // Utiliser originalCircles
-                                const dx = point.x - circleData.x;
-                                const dy = point.y - circleData.y;
-                                const distSquared = dx*dx + dy*dy;
-                                const radiusSquared = (circleData.radius + marginError) * (circleData.radius + marginError);
+                            // Vérifier la visibilité avec une marge d'erreur
+                            const visibleSamples = [];
+                            const marginError = 0.1; // Petit tampon pour éviter les problèmes de précision
+                            
+                            for (const point of samples) {
+                                let isVisible = true;
                                 
-                                if (distSquared < radiusSquared) {
-                                    isVisible = false;
-                                    break;
-                                }
-                            }
-                            
-                            if (isVisible) {
-                                visibleSamples.push(point);
-                            }
-                        }
-                        
-                        // MODIFIÉ: Méthode améliorée pour regrouper les segments
-                        if (visibleSamples.length > 0) {
-                            // Commencer un nouveau segment avec le premier point visible
-                            let segments = [];
-                            let currentSegment = [visibleSamples[0]];
-                            
-                            for (let i = 1; i < visibleSamples.length; i++) {
-                                const point = visibleSamples[i];
-                                const prevPoint = visibleSamples[i - 1];
-                                
-                                // Vérifier si les points sont successifs dans l'échantillonnage original
-                                const indexInSamples = samples.findIndex(p => p.x === point.x && p.y === point.y);
-                                const prevIndexInSamples = samples.findIndex(p => p.x === prevPoint.x && p.y === prevPoint.y);
-                                
-                                // Si le point actuel est une commande M, commencer un nouveau segment
-                                if (point.cmd === 'M' || indexInSamples - prevIndexInSamples > 2) {
-                                    // Terminer le segment en cours
-                                    if (currentSegment.length > 1) {
-                                        segments.push([...currentSegment]);
+                                for (const circleData of originalCircles) {
+                                    const dX = point.x - circleData.x;
+                                    const dY = point.y - circleData.y;
+                                    const distSquared = dX*dX + dY*dY;
+                                    const radiusSquared = (circleData.radius + marginError) * (circleData.radius + marginError);
+                                    
+                                    if (distSquared < radiusSquared) {
+                                        isVisible = false;
+                                        break;
                                     }
-                                    // Commencer un nouveau segment
-                                    currentSegment = [point];
-                                } else {
-                                    // Ajouter au segment en cours
-                                    currentSegment.push(point);
+                                }
+                                
+                                if (isVisible) {
+                                    visibleSamples.push(point);
                                 }
                             }
                             
-                            // Ajouter le dernier segment
-                            if (currentSegment.length > 1) {
-                                segments.push(currentSegment);
-                            }
-                            
-                            // Créer un nouveau chemin pour chaque segment
-                            segments.forEach(segment => {
-                                if (segment.length > 1) {
-                                    const newPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                            // Méthode améliorée pour regrouper les segments
+                            if (visibleSamples.length > 0) {
+                                // Commencer un nouveau segment avec le premier point visible
+                                let segments = [];
+                                let currentSegment = [visibleSamples[0]];
+                                
+                                for (let i = 1; i < visibleSamples.length; i++) {
+                                    const point = visibleSamples[i];
+                                    const prevPoint = visibleSamples[i - 1];
                                     
-                                    // Construire les données du chemin
-                                    let newPathData = `M ${segment[0].x},${segment[0].y}`;
-                                    for (let i = 1; i < segment.length; i++) {
-                                        newPathData += ` L ${segment[i].x},${segment[i].y}`;
+                                    // Vérifier si les points sont successifs dans l'échantillonnage original
+                                    const indexInSamples = samples.findIndex(p => p.x === point.x && p.y === point.y);
+                                    const prevIndexInSamples = samples.findIndex(p => p.x === prevPoint.x && p.y === prevPoint.y);
+                                    
+                                    // Si le point actuel est une commande M ou Z, ou si les points ne sont pas successifs
+                                    if (point.cmd === 'M' || point.cmd === 'Z' || indexInSamples - prevIndexInSamples > 2) {
+                                        // Terminer le segment en cours
+                                        if (currentSegment.length > 1) {
+                                            segments.push([...currentSegment]);
+                                        }
+                                        // Commencer un nouveau segment
+                                        currentSegment = [point];
+                                    } else {
+                                        // Ajouter au segment en cours
+                                        currentSegment.push(point);
                                     }
-                                    
-                                    newPath.setAttribute('d', newPathData);
-                                    newPath.setAttribute('fill', 'none');
-                                    newPath.setAttribute('stroke', 'black');
-                                    newPath.setAttribute('stroke-width', '0.38');
-                                    
-                                    newGroup.appendChild(newPath);
                                 }
-                            });
+                                
+                                // Ajouter le dernier segment
+                                if (currentSegment.length > 1) {
+                                    segments.push(currentSegment);
+                                }
+                                
+                                // Créer un nouveau chemin pour chaque segment
+                                segments.forEach(segment => {
+                                    if (segment.length > 1) {
+                                        const newPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                                        
+                                        // Construire les données du chemin
+                                        let newPathData = `M ${segment[0].x},${segment[0].y}`;
+                                        for (let i = 1; i < segment.length; i++) {
+                                            const cmd = segment[i].cmd === 'Z' ? 'Z' : 'L';
+                                            if (cmd === 'Z') {
+                                                newPathData += ` Z`;
+                                            } else {
+                                                newPathData += ` L ${segment[i].x},${segment[i].y}`;
+                                            }
+                                        }
+                                        
+                                        newPath.setAttribute('d', newPathData);
+                                        newPath.setAttribute('fill', 'none');
+                                        newPath.setAttribute('stroke', 'black');
+                                        newPath.setAttribute('stroke-width', '0.38');
+                                        
+                                        newGroup.appendChild(newPath);
+                                    }
+                                });
+                            }
                         }
                     });
                     
@@ -1858,7 +1904,7 @@
                     }
                 }
             });
-            
+                        
             return svg;
         }
     </script>

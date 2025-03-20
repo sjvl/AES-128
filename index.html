@@ -924,7 +924,7 @@
                 // Dessiner le premier carré
                 if (index === 0) {
                     const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
-                    const size = radius+2;
+                    const size = radius + 1;
                     const spacing = .333; // Espacement entre les lignes
                     
                     // Calculer le nombre de lignes nécessaires
@@ -988,7 +988,7 @@
                 // Dessiner le dernier carré et les cercles intérieurs
                 if (index === curvePoints.length - 1) {
                     const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
-                    const size = radius+2;
+                    const size = radius + 1;
                     const spacing = .333; // Espacement entre les lignes
                     
                     // Calculer le nombre de lignes nécessaires
@@ -1257,7 +1257,7 @@
                 // Premier carré hachuré
 if (index === 0) {
     const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
-    const size = radius + 2;
+    const size = radius + 1;
     const spacing = .333;
     const numLines = Math.floor(size * 2 / spacing) + 1;
     
@@ -1485,7 +1485,7 @@ if (index === 0) {
                 if (index === curvePoints.length - 1) {
                     // Dessiner le dernier carré hachuré
                     const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
-                    const size = radius + 2;
+                    const size = radius + 1;
                     const spacing = .333;
                     const numLines = Math.floor(size * 2 / spacing) + 1;
                     
